@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mapper.OrderMapper">
+
+    <!--发单人发的快递信息-->
+    <insert id="addinfo" parameterType="orderInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into info (telephone,shipAddress,sendAddress,size,deadline,money,note,createtime) values (
+        #{telephone},#{shipAddress},#{sendAddress},#{size},#{deadline},#{money},#{note},now())
+
+    </insert>
+
+    <!--接单人编辑订单-->
+    <update id="geterEditInfo" parameterType="com.pojo.OrderInfo">
+        update info set receiver_telephone = #{receiver_telephone} where id = #{id}
+    </update>
+
+    <update id="senderEditInfo" parameterType="com.pojo.OrderInfo">
+        update info set telephone = #{telephone} where id = #{id}
+    </update>
+    <!--查询单个订单详细信息-->
+    <select id="querySingleInfoOrder" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
+        select  * from info where id = #{id}
+    </select>
+<!--查询所有信息-->
+    <select id="findAllInfo" resultType="com.pojo.OrderInfo">
+        select * from info where isValid = 1
+    </select>
+<!--查询所有发单信息-->
+    <select id="findsendInfo" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
+        select * from info where sendUserID = #{sendUserID}
+    </select>
+<!--查询所有接单信息-->
+    <select id="findgetInfo" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
+        select * from info where receiver_telephone = #{receiver_telephone}
+    </select>
+<!--删除订单主人信息-->
+    <delete id="deletesenderInfo" parameterType="com.pojo.OrderInfo">
+        delete sendUserID from info where id = #{id} and id >20
+    </delete>
+<!--用户长时间未点击确认，自动确认-->
+    <delete id="updateorderstatus" parameterType="int">
+      update info set orderStatusID = 8 where id = #{id}
+    </delete>
+<!--使新插入数据库的数据从最大数字+1开始-->
+    <update id="alterinfo" parameterType="int">
+        alter table info auto_increment = #{i}
+    </update>
+<!--删除数据后，使id连续-->
+    <update id="update" parameterType="com.pojo.OrderInfo">
+        update info set id = id-1 where id > #{id}
+
+    </update>
+<!--查询一条信息-->
+    <select id="checkInfo" parameterType="int" resultType="com.pojo.OrderInfo">
+        select * from info where id=#{id}
+    </select>
+<!--删除接单用户信息-->
+    <update id="deletereceiverInfo" parameterType="com.pojo.OrderInfo">
+        update info set receiverID = null,receiver_telephone = null where id = #{id}
+    </update>
+    <!--接单人接单,在信息中插入接单人信息-->
+    <insert id="order" parameterType="com.pojo.OrderInfo">
+        insert into info(receiverID,receiver_telephone,orderStatusID,receivetime) values (#{receiverID},#{receiver_telephone},#{orderStatusID},now()) where id = #{id}
+    </insert>
+
+    <!--改变订单状态-->
+    <update id="changeInfostatus" parameterType="com.pojo.OrderInfo">
+        update info set orderStatusID = #{orderStatusID} where id = #{id}
+    </update>
+<!--改变订单的有效性-->
+    <update id="changeisValidInfo" parameterType="int">
+        update info set isValid = 0 where id = #{id}
+    </update>
+</mapper>
