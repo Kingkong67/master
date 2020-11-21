@@ -6,7 +6,7 @@ public class UserController {
         return "test";
     }
 
-    public String test4() {
-        return "test4";
+    public String test3()  {
+        return "test";
     }
 }
