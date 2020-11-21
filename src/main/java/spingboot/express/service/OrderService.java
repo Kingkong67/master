@@ -3,7 +3,6 @@ package spingboot.express.service;
  * 信息模块接口
  */
 
-import com.pojo.OrderInfo;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.HashMap;

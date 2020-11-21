@@ -1,5 +1,7 @@
 package spingboot.express.pojo;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -7,6 +9,7 @@ import java.util.Arrays;
 /**
  * 用户模块pojo
  */
+@Data
 public class User implements Serializable {
 
     private static final long serialVersionUID = 4448099319617060855L;
@@ -68,118 +71,6 @@ public class User implements Serializable {
      * 用户失败单数
      */
     private int failOrderCount;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public void setNickname(String nickname) {
-        this.nickname = nickname;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
-    }
-
-    public Boolean getSex() {
-        return sex;
-    }
-
-    public void setSex(Boolean sex) {
-        this.sex = sex;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getId_card() {
-        return id_card;
-    }
-
-    public void setId_card(String id_card) {
-        this.id_card = id_card;
-    }
-
-    public byte[] getIdCardImage() {
-        return idCardImage;
-    }
-
-    public void setIdCardImage(byte[] idCardImage) {
-        this.idCardImage = idCardImage;
-    }
-
-    public byte[] getStuCardImage() {
-        return stuCardImage;
-    }
-
-    public void setStuCardImage(byte[] stuCardImage) {
-        this.stuCardImage = stuCardImage;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public Timestamp getCreate_time() {
-        return create_time;
-    }
-
-    public void setCreate_time(Timestamp create_time) {
-        this.create_time = create_time;
-    }
-
-    public int getTotalOrderCount() {
-        return totalOrderCount;
-    }
-
-    public void setTotalOrderCount(int totalOrderCount) {
-        this.totalOrderCount = totalOrderCount;
-    }
-
-    public int getSuccessOrderCount() {
-        return successOrderCount;
-    }
-
-    public void setSuccessOrderCount(int successOrderCount) {
-        this.successOrderCount = successOrderCount;
-    }
-
-    public int getFailOrderCount() {
-        return failOrderCount;
-    }
-
-    public void setFailOrderCount(int failOrderCount) {
-        this.failOrderCount = failOrderCount;
-    }
 
     @Override
     public String toString() {
