@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--对应一个接口的全限定名，myBatis上下文可以通过它找到对应的接口-->
+<mapper namespace="com.mapper.UserMapper">
+
+    <select id="getUserByTel" resultType="com.pojo.User">
+        select * from user where telephone = #{telephone}
+    </select>
+
+    <insert id="addUser" parameterType="com.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        insert into user values (#{id}, #{nickname}, #{password}, #{telephone},
+                                 #{sex}, #{name}, #{id_card}, #{idCardImage}, #{stuCardImage},
+                                 #{address}, now(), #{totalOrderCount}, #{successOrderCount}, #{failOrderCount})
+    </insert>
+
+    <select id="getUserByUserID" parameterType="long" resultType="com.pojo.User">
+        select * from user where id = #{userID}
+    </select>
+
+    <update id="changeUserInfo" parameterType="com.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        update user set nickname = #{nickname}, password = #{password},telephone = #{telephone},
+                        sex = #{sex}, name = #{name}, id_card = #{id_card},idCardImage = #{idCardImage},
+                        stuCardImage = #{stuCardImage}, address = #{address}, create_time = #{create_time},
+                        totalOrderCount = #{totalOrderCount}, successOrderCount = #{successOrderCount}, failOrderCount = #{failOrderCount}
+                    where id = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="long" >
+        delete from user where id = #{userID}
+    </delete>
+
+</mapper>
