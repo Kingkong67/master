@@ -3,6 +3,7 @@ package spingboot.express.controller.userController;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
 import spingboot.express.enums.UserCommonStatus;
@@ -16,11 +17,28 @@ import java.util.Map;
  * 用户模块控制层
  */
 @RestController
+@RequestMapping("/userInfo")
 @Slf4j
 public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Value("${server.port}")
+    private int port;
+
+    @GetMapping(value = "/hello")
+    public String hello1() {
+        try {
+            System.out.println(port);
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("userID", 1);
+            return userService.getBasicUser(map).get("nickname").toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "-111111";
+        }
+    }
 
     /**
      * 用户密码登录接口
@@ -276,7 +294,7 @@ public class UserController {
      * @param paramMap 传入存储参数集合
      * @return 返回Result接口
      */
-    @PostMapping(value = "/getUserAddress")
+    @RequestMapping(value = "/getUserAddress", method = RequestMethod.POST)
     public Result getAddress(@RequestBody HashMap<String, Object> paramMap) {
         Result result = new Result();
         log.info("[获取用户默认地址] 开始-----");
