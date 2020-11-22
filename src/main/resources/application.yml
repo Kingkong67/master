@@ -45,3 +45,11 @@ mybatis-plus:
 #  reasonable: true
 #  supportMethodsArguments: true
 #  params: count=countSql
+
+jwt:
+  id: express_jwt_id
+  access:
+    token:
+      secret: 23456dfhgff98858875fjgsifjghi25212
+  refresh:
+    secret: w46245643gfhsfhsfgh5546546452f2hg12

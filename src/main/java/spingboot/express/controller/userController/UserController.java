@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
 import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.pojo.User;
+import spingboot.express.service.AccessTokenService;
 import spingboot.express.service.UserService;
+import spingboot.express.utils.CodeMakerUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +25,16 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private AccessTokenService accessTokenService;
+
+    @PostMapping("/getToken")
+    public String testToken() {
+        String userCode = CodeMakerUtil.createUserCode();
+        String platformCode = CodeMakerUtil.createPlatformCode();
+        return accessTokenService.createAccessTokenByUserCode(platformCode, userCode);
+    }
 
     @Value("${server.port}")
     private int port;
