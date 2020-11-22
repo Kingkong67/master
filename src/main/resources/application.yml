@@ -12,12 +12,10 @@ spring:
   application:
     name: express
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ExpressService?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true&&serverTimezone=UTC
     username: root
     password: 15226221250
 
 #日志配置
-logging:
-  level:
-    org.springframework: warn
+

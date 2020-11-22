@@ -8,10 +8,7 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.OrderInfo;
@@ -73,7 +70,7 @@ public class OrderController {
      * @param paramMap
      * @return
      */
-    @PostMapping("/showAllOrderInfoList")
+    @GetMapping("/list")
     public Result showAllOrderInfoList(@RequestBody HashMap<String, Object> paramMap) {
         Result result = new Result();
         try {
@@ -106,6 +103,8 @@ public class OrderController {
             return result;
         }
     }
+
+
 
     /**
      * 接单人接单，并添加接单人的电话信息,ID

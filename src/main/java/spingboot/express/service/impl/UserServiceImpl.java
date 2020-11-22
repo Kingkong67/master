@@ -1,4 +1,4 @@
-package spingboot.express.service.impl;
+package spingboot.express.service.Impl;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spingboot.express.commons.Result;
-import spingboot.express.commons.UserCommonStatus;
+import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.exception.ServiceException;
 import spingboot.express.mapper.UserMapper;
