@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 
 @Service
-
 public class OrderServiceImpl implements OrderService {
 
 
@@ -37,17 +36,17 @@ public class OrderServiceImpl implements OrderService {
         OrderInfo orderInfo = new OrderInfo();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-//        orderInfo.setSendUserID(Integer.valueOf(paramMap.get("sendUserID").toString()));
-        orderInfo.setTelephone(paramMap.get("telephone").toString());
+        orderInfo.setSenderID(Integer.valueOf(paramMap.get("senderID").toString()));
+        orderInfo.setTel(paramMap.get("tel").toString());
         System.out.println(paramMap.get("deadline").toString());
-        orderInfo.setDeadline(simpleDateFormat.parse(paramMap.get("deadline").toString()));
+        orderInfo.setDeadLine(simpleDateFormat.parse(paramMap.get("deadline").toString()));
         orderInfo.setMoney(paramMap.get("money").toString());
         orderInfo.setNote(paramMap.get("note").toString());
-//        orderInfo.setSex(paramMap.get("sex").toString());
+        orderInfo.setSex(paramMap.get("sex").toString());
         orderInfo.setSize(paramMap.get("size").toString());
         orderInfo.setShipAddress(paramMap.get("shipAddress").toString());
         orderInfo.setSendAddress(paramMap.get("sendAddress").toString());
-        orderMapper.addinfo(orderInfo);
+        orderMapper.addInfo(orderInfo);
         return orderInfo.getId();
     }
 
@@ -62,7 +61,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderInfo> findsend(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setSendUserID(Integer.valueOf(paramMap.get("sendUserID").toString()));
+        orderInfo.setSenderID(Integer.valueOf(paramMap.get("sendUserID").toString()));
         return orderMapper.findsendInfo(orderInfo);
     }
 
@@ -106,8 +105,8 @@ public class OrderServiceImpl implements OrderService {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setReceiverID(Integer.valueOf(paramMap.get("receiverID").toString()));
-        orderInfo.setReceiver_telephone(paramMap.get("receiver_telephone").toString());
-        orderInfo.setOrderStatusID(OrderTypeEnum.RECEIVED.getCode());
+        orderInfo.setReceiveTel(paramMap.get("receiver_telephone").toString());
+        orderInfo.setOrderStatus(OrderTypeEnum.RECEIVED.getCode());
         return orderMapper.order(orderInfo);
     }
 
@@ -136,7 +135,7 @@ public class OrderServiceImpl implements OrderService {
     public int deletesender(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setSendUserID(Integer.valueOf(paramMap.get("SendUserID").toString()));
+        orderInfo.setSenderID(Integer.valueOf(paramMap.get("SendUserID").toString()));
         return orderMapper.deletesenderInfo(orderInfo);
     }
 
@@ -174,7 +173,7 @@ public class OrderServiceImpl implements OrderService {
     public int changestatus(HashMap<String, Object> paramMap, int orderStatusID) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setOrderStatusID(orderStatusID);
+        orderInfo.setOrderStatus(orderStatusID);
         return orderMapper.changeInfostatus(orderInfo);
     }
 
@@ -216,7 +215,7 @@ public class OrderServiceImpl implements OrderService {
     public int senderEdit(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setTelephone(paramMap.get("telephone").toString());
+        orderInfo.setTel(paramMap.get("telephone").toString());
         return orderMapper.senderEditInfo(orderInfo);
     }
 
@@ -231,7 +230,7 @@ public class OrderServiceImpl implements OrderService {
     public int geterEdit(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setReceiver_telephone(paramMap.get("receiver_telephone").toString());
+        orderInfo.setReceiveTel(paramMap.get("receiver_telephone").toString());
         orderInfo.setReceiverID(Integer.valueOf(paramMap.get("receiverID").toString()));
         return orderMapper.geterEditInfo(orderInfo);
     }
