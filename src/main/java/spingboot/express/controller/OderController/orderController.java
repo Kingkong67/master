@@ -31,7 +31,6 @@ public class OrderController {
 
     Logger logger = LoggerFactory.getLogger(OrderController.class);
 
-    int CurrentNumber = 0;
     /**
      * 注入用户接口
      */
@@ -45,30 +44,27 @@ public class OrderController {
     private OrderService orderService;
 
     /**
-     * 向数据库中添加快递的详尽信息,发单
+     *@描述 发单添加详细信息
+     *@参数 [paramMap]
+     *@返回值 spingboot.express.commons.Result
+     *@创建人 wanghu
+     *@创建时间 2020/11/22 5:22 上午
+     *@修改人和其它信息
      */
-    @RequestMapping("/writeInfo")
+    @PostMapping("/writeInfo")
     public Result writeInfo(@RequestBody HashMap<String, Object> paramMap) {
         Result result = new Result();
         try {
             logger.info("【发单用户填写信息开始】 writeInfo start");
-            /**
-             *  infoService.alter(1);
-             *  该方法解决了数据库中删除数据之后，再插入数据时id不能连续的问题
-             *  在插入数据之前，让数据库中的id每一次都在最大值的id后加1
-             */
-//            orderService.alter(1);
-            orderService.add(paramMap);/*添加订单信息*/
+            orderService.add(paramMap);
             result.setIsSuccess(true);
             logger.info("【增加订单信息成功】 writeInfo success");
             return result;
-
         } catch (Exception e) {
             result.setIsSuccess(false);
             logger.error("【增加订单信息失败】 writeInfo fail", e);
             return result;
         }
-
     }
 
     /**
@@ -87,7 +83,7 @@ public class OrderController {
             List<OrderInfo> k = orderService.findall();
             for (int i = 0; i < k.size(); i++) {
                 OrderInfo orderInfo = k.get(i);
-                if ((new Date().getTime()) - 86400000 > orderInfo.getDeadline().getTime()) {
+                if ((new Date().getTime()) - 86400000 > orderInfo.getDeadLine().getTime()) {
                     logger.info("开始自动帮助发单确认收到订单");
                     orderService.updateorderstatusbyid(orderInfo.getId());
                     logger.info("给接单用户酬金");
@@ -142,6 +138,7 @@ public class OrderController {
         }
     }
 
+    int CurrentNumber = 0;
 
     public void Choose(HashMap<String, Object> paramMap) {
 
@@ -217,7 +214,7 @@ public class OrderController {
         try {
             logger.info("【发单人取消发单开始】 cancleTheOrder start");
             OrderInfo orderInfo = orderService.check(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-            int ret = orderInfo.getOrderStatusID();
+            int ret = orderInfo.getOrderStatus();
 //              在接单用户确认订单之前方可取消发单
             if (ret < OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode()) {
                 orderService.deletesender(paramMap);
@@ -249,11 +246,11 @@ public class OrderController {
         Result result = new Result();
         try {
             OrderInfo orderInfo = orderService.check(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-            int ret = orderInfo.getOrderStatusID();
+            int ret = orderInfo.getOrderStatus();
             if (ret < OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode()) {
 
                 if (new Date().getTime() - orderInfo.getReceiveTime().getTime() <
-                        (orderInfo.getDeadline().getTime() - orderInfo.getCreateTime().getTime()) / 4) {
+                        (orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 4) {
 
                     logger.info("【接单人取消接单开始】 cancleReceipt start");
                     orderService.deletereceiver(paramMap);
@@ -262,7 +259,7 @@ public class OrderController {
                     logger.info("【接单人取消接单成功】 cancleReceipt success");
                     return result;
                 } else {
-                    if (new Date().getTime() > orderInfo.getDeadline().getTime()) {
+                    if (new Date().getTime() > orderInfo.getDeadLine().getTime()) {
                         logger.error("【惩罚100%】");
                         result.setIsSuccess(false);
                         result.setMessage("期限已过");
@@ -371,7 +368,7 @@ public class OrderController {
         Result result = new Result();
         try {
             OrderInfo orderInfo = orderService.check(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-            int ret = orderInfo.getOrderStatusID();
+            int ret = orderInfo.getOrderStatus();
             if (ret > OrderTypeEnum.COMPLETED.getCode()) {
                 logger.info("【删除发单信息开始】 deleteSendOrder start");
                 orderService.deletesender(paramMap);
@@ -401,7 +398,7 @@ public class OrderController {
         Result result = new Result();
         try {
             OrderInfo orderInfo = orderService.check(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-            int ret = orderInfo.getOrderStatusID();
+            int ret = orderInfo.getOrderStatus();
             if (ret > OrderTypeEnum.COMPLETED.getCode()) {
                 logger.info("【删除接单信息开始】 deleteGetOrder start");
                 orderService.deletereceiver(paramMap);
@@ -478,7 +475,7 @@ public class OrderController {
         try {
             logger.info("【发单人点击未确认订单开始】 noOrdersReceived start");
             OrderInfo orderInfo = orderService.check(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-            int ret = orderInfo.getOrderStatusID();
+            int ret = orderInfo.getOrderStatus();
             if (ret == OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getCode()) {
                 logger.info("【平台介入调查】");
                 result.setIsSuccess(false);

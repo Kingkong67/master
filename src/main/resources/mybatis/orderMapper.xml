@@ -3,12 +3,93 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="spingboot.express.mapper.OrderMapper">
+<resultMap id="BaseResultMap" type="spingboot.express.pojo.OrderInfo">
+    <id column="ID" jdbcType="INTEGER" property="id"/>
+    <result column="tel" jdbcType="VARCHAR" property="tel"/>
+    <result column="ship_address" jdbcType="VARCHAR" property="shipAddress"/>
+    <result column="send_address" jdbcType="VARCHAR" property="sendAddress"/>
+    <result column="money" jdbcType="VARCHAR" property="money"/>
+    <result column="sex" jdbcType="VARCHAR" property="sex"/>
+    <result column="size" jdbcType="VARCHAR" property="size"/>
+    <result column="note" jdbcType="VARCHAR" property="note"/>
+    <result column="dead_line" jdbcType="TIMESTAMP" property="deadLine"/>
+    <result column="receiver_id" jdbcType="INTEGER" property="receiverID"/>
+    <result column="sender_id" jdbcType="INTEGER" property="senderID"/>
+    <result column="receive_tel" jdbcType="VARCHAR" property="receiveTel"/>
+    <result column="order_status" jdbcType="INTEGER" property="orderStatus"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="is_valid" jdbcType="VARCHAR" property="isValid"/>
+    <result column="receive_time" jdbcType="TIMESTAMP" property="receiveTime"/>
+</resultMap>
+    <sql id="Base_Order_Info">
+       tel,ship_address,send_address,money,sex,size,note,dead_line,receiver_id,sender_id,
+       receive_tel,order_status,create_time,is_valid,receive_time
+    </sql>
 
-    <!--发单人发的快递信息-->
-    <insert id="addinfo" parameterType="orderInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into info (telephone,shipAddress,sendAddress,size,deadline,money,note,createtime) values (
-        #{telephone},#{shipAddress},#{sendAddress},#{size},#{deadline},#{money},#{note},now())
-
+    <!--发单人发送快递信息-->
+    <!--  允许JDBC自动生成主键，并返回  -->
+    <insert id="addInfo" parameterType="orderInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+              <if test="tel != null">
+                  tel,
+              </if>
+              <if test="shipAddress != null">
+                  ship_address,
+              </if>
+              <if test="sendAddress != null">
+                  send_address,
+              </if>
+              <if test="money != null">
+                  money,
+              </if>
+              <if test="sex != null">
+                  sex,
+              </if>
+              <if test="size != null">
+                  size,
+              </if>
+              <if test="note != null">
+                  note,
+              </if>
+              <if test="deadLine != null">
+                  dead_line,
+              </if>
+              <if test="senderID ！= null">
+                  sender_id,
+              </if>
+              create_time
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tel != null">
+                #{tel,jdbcType=VARCHAR},
+            </if>
+            <if test="shipAddress != null">
+                #{shipAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="sendAddress != null">
+                #{sendAddress,jdbcType=VARCHAR},
+            </if>
+            <if test="money != null">
+                #{money,jdbcType=VARCHAR},
+            </if>
+            <if test="sex != null">
+                #{sex,jdbcType=VARCHAR},
+            </if>
+            <if test="size != null">
+                #{size,jdbcType=VARCHAR},
+            </if>
+            <if test="note != null">
+                #{note,jdbcType=VARCHAR},
+            </if>
+            <if test="deadLine != null">
+                #{deadLine,jdbcType=TIMESTAMP},
+            </if>
+            <if test="senderID ！= null">
+                #{senderID,jdbcType=INTEGER},
+            </if>
+            now()
+        </trim>
     </insert>
 
     <!--接单人编辑订单-->
@@ -23,9 +104,12 @@
     <select id="querySingleInfoOrder" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
         select  * from info where id = #{id}
     </select>
-<!--查询所有信息-->
+    <!--查询所有信息-->
     <select id="findAllInfo" resultType="com.pojo.OrderInfo">
-        select * from info where isValid = 1
+        select
+        <include refid="Base_Order_Info"/>
+        from info
+        where isValid = 1
     </select>
 <!--查询所有发单信息-->
     <select id="findsendInfo" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">

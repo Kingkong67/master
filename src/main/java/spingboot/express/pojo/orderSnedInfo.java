@@ -89,5 +89,23 @@ public class orderSnedInfo implements Serializable {
      */
     private Integer infoStatus;
 
-
+    @Override
+    public String toString() {
+        return "orderSnedInfo{" +
+                "ID=" + ID +
+                ", senderID=" + senderID +
+                ", tel='" + tel + '\'' +
+                ", receiveTel='" + receiveTel + '\'' +
+                ", shipAddress='" + shipAddress + '\'' +
+                ", sendAddress='" + sendAddress + '\'' +
+                ", note='" + note + '\'' +
+                ", money='" + money + '\'' +
+                ", 发单人性别='" + sex + '\'' +
+                ", 订单截止时间=" + deadLine +
+                ", 订单创建时间=" + createTime +
+                ", 订单型号='" + size + '\'' +
+                ", 是否有效='" + isValid + '\'' +
+                ", 订单状态=" + infoStatus +
+                '}';
+    }
 }

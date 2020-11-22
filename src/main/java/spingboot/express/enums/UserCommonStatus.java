@@ -1,4 +1,4 @@
-package spingboot.express.commons;
+package spingboot.express.enums;
 
 /**
  * 用户模块通用状态枚举

@@ -15,7 +15,7 @@ public interface OrderMapper {
      * function:发单人填写发单信息的接口
      * @param orderInfo
      */
-     int addinfo(OrderInfo orderInfo);
+     int addInfo(OrderInfo orderInfo);
 
     /**
      * 查询所有订单接口

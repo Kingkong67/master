@@ -10,14 +10,11 @@ import java.util.List;
 
 public interface OrderService {
 
-
-
     /**
      * function:添加用户发单信息接口
      * @param paramMap
      * @throws Exception
      */
-
      int add(HashMap<String,Object> paramMap) throws Exception;
 
     /**

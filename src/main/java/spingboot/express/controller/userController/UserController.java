@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
-import spingboot.express.commons.UserCommonStatus;
+import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.pojo.User;
 import spingboot.express.service.UserService;
 
