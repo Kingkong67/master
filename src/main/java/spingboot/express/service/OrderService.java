@@ -3,6 +3,7 @@ package spingboot.express.service;
  * 信息模块接口
  */
 
+import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.HashMap;
@@ -12,10 +13,10 @@ public interface OrderService {
 
     /**
      * function:添加用户发单信息接口
-     * @param paramMap
+     * @param orderInfo
      * @throws Exception
      */
-     int add(HashMap<String,Object> paramMap) throws Exception;
+     int add(OrderInfo orderInfo) throws Exception;
 
     /**
      * 查询所有用户发单信息接口

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="spingboot.express.mapper.OrderMapper">
 <resultMap id="BaseResultMap" type="spingboot.express.pojo.OrderInfo">
-    <id column="ID" jdbcType="INTEGER" property="id"/>
+    <id column="id" jdbcType="INTEGER" property="ID"/>
     <result column="tel" jdbcType="VARCHAR" property="tel"/>
     <result column="ship_address" jdbcType="VARCHAR" property="shipAddress"/>
     <result column="send_address" jdbcType="VARCHAR" property="sendAddress"/>
@@ -28,8 +28,8 @@
 
     <!--发单人发送快递信息-->
     <!--  允许JDBC自动生成主键，并返回  -->
-    <insert id="addInfo" parameterType="orderInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into info
+    <insert id="addInfo" parameterType="spingboot.express.pojo.OrderInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into orderInfo
         <trim prefix="(" suffix=")" suffixOverrides=",">
               <if test="tel != null">
                   tel,
@@ -58,7 +58,9 @@
               <if test="senderID ！= null">
                   sender_id,
               </if>
-              create_time
+              <if test="createTime == null">
+                  create_time,
+              </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="tel != null">
@@ -88,73 +90,75 @@
             <if test="senderID ！= null">
                 #{senderID,jdbcType=INTEGER},
             </if>
-            now()
+            <if test="createTime == null">
+                now(),
+            </if>
         </trim>
     </insert>
 
-    <!--接单人编辑订单-->
-    <update id="geterEditInfo" parameterType="com.pojo.OrderInfo">
-        update info set receiver_telephone = #{receiver_telephone} where id = #{id}
+   <!-- &lt;!&ndash;接单人编辑订单&ndash;&gt;
+    <update id="geterEditInfo" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo set receiver_telephone = #{receiver_telephone} where id = #{id}
     </update>
 
-    <update id="senderEditInfo" parameterType="com.pojo.OrderInfo">
-        update info set telephone = #{telephone} where id = #{id}
+    <update id="senderEditInfo" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo set telephone = #{telephone} where id = #{id}
     </update>
-    <!--查询单个订单详细信息-->
-    <select id="querySingleInfoOrder" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
+    &lt;!&ndash;查询单个订单详细信息&ndash;&gt;
+    <select id="querySingleInfoOrder" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
         select  * from info where id = #{id}
     </select>
-    <!--查询所有信息-->
-    <select id="findAllInfo" resultType="com.pojo.OrderInfo">
+    &lt;!&ndash;查询所有信息&ndash;&gt;
+    <select id="findAllInfo" resultType="spingboot.express.pojo.OrderInfo">
         select
         <include refid="Base_Order_Info"/>
-        from info
+        from orderInfo
         where isValid = 1
     </select>
-<!--查询所有发单信息-->
-    <select id="findsendInfo" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
-        select * from info where sendUserID = #{sendUserID}
+&lt;!&ndash;查询所有发单信息&ndash;&gt;
+    <select id="findsendInfo" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
+        select * from orderInfo where sendUserID = #{sendUserID}
     </select>
-<!--查询所有接单信息-->
-    <select id="findgetInfo" parameterType="com.pojo.OrderInfo" resultType="com.pojo.OrderInfo">
-        select * from info where receiver_telephone = #{receiver_telephone}
+&lt;!&ndash;查询所有接单信息&ndash;&gt;
+    <select id="findgetInfo" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
+        select * from orderInfo where receiver_telephone = #{receiver_telephone}
     </select>
-<!--删除订单主人信息-->
-    <delete id="deletesenderInfo" parameterType="com.pojo.OrderInfo">
-        delete sendUserID from info where id = #{id} and id >20
+&lt;!&ndash;删除订单主人信息&ndash;&gt;
+    <delete id="deletesenderInfo" parameterType="spingboot.express.pojo.OrderInfo">
+        delete sendUserID from orderInfo where id = #{id} and id >20
     </delete>
-<!--用户长时间未点击确认，自动确认-->
+&lt;!&ndash;用户长时间未点击确认，自动确认&ndash;&gt;
     <delete id="updateorderstatus" parameterType="int">
-      update info set orderStatusID = 8 where id = #{id}
+      update orderInfo set orderStatusID = 8 where id = #{id}
     </delete>
-<!--使新插入数据库的数据从最大数字+1开始-->
+&lt;!&ndash;使新插入数据库的数据从最大数字+1开始&ndash;&gt;
     <update id="alterinfo" parameterType="int">
-        alter table info auto_increment = #{i}
+        alter table orderInfo auto_increment = #{i}
     </update>
-<!--删除数据后，使id连续-->
-    <update id="update" parameterType="com.pojo.OrderInfo">
-        update info set id = id-1 where id > #{id}
+&lt;!&ndash;删除数据后，使id连续&ndash;&gt;
+    <update id="update" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo set id = id-1 where id > #{id}
 
     </update>
-<!--查询一条信息-->
-    <select id="checkInfo" parameterType="int" resultType="com.pojo.OrderInfo">
-        select * from info where id=#{id}
+&lt;!&ndash;查询一条信息&ndash;&gt;
+    <select id="checkInfo" parameterType="int" resultType="spingboot.express.pojo.OrderInfo">
+        select * from orderInfo where id=#{id}
     </select>
-<!--删除接单用户信息-->
-    <update id="deletereceiverInfo" parameterType="com.pojo.OrderInfo">
-        update info set receiverID = null,receiver_telephone = null where id = #{id}
+&lt;!&ndash;删除接单用户信息&ndash;&gt;
+    <update id="deletereceiverInfo" parameterType="spingboot.express.pojo.OrderInfoo">
+        update orderInfo set receiverID = null,receiver_telephone = null where id = #{id}
     </update>
-    <!--接单人接单,在信息中插入接单人信息-->
-    <insert id="order" parameterType="com.pojo.OrderInfo">
-        insert into info(receiverID,receiver_telephone,orderStatusID,receivetime) values (#{receiverID},#{receiver_telephone},#{orderStatusID},now()) where id = #{id}
+    &lt;!&ndash;接单人接单,在信息中插入接单人信息&ndash;&gt;
+    <insert id="order" parameterType="spingboot.express.pojo.OrderInfo">
+        insert into orderInfo(receiverID,receiver_telephone,orderStatusID,receivetime) values (#{receiverID},#{receiver_telephone},#{orderStatusID},now()) where id = #{id}
     </insert>
 
-    <!--改变订单状态-->
-    <update id="changeInfostatus" parameterType="com.pojo.OrderInfo">
-        update info set orderStatusID = #{orderStatusID} where id = #{id}
+    &lt;!&ndash;改变订单状态&ndash;&gt;
+    <update id="changeInfostatus" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo set orderStatusID = #{orderStatusID} where id = #{id}
     </update>
-<!--改变订单的有效性-->
+&lt;!&ndash;改变订单的有效性&ndash;&gt;
     <update id="changeisValidInfo" parameterType="int">
-        update info set isValid = 0 where id = #{id}
-    </update>
+        update orderInfo set isValid = 0 where id = #{id}
+    </update>-->
 </mapper>

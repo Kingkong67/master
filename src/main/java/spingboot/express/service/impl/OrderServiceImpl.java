@@ -27,27 +27,27 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 向数据库中添加快递的详尽信息,发单
      *
-     * @param paramMap
+     * @param orderInfo
      * @throws Exception
      */
     @Override
 //    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public int add(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
+    public int add(OrderInfo orderInfo) throws Exception {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
+/*
         orderInfo.setSenderID(Integer.valueOf(paramMap.get("senderID").toString()));
         orderInfo.setTel(paramMap.get("tel").toString());
-        System.out.println(paramMap.get("deadline").toString());
-        orderInfo.setDeadLine(simpleDateFormat.parse(paramMap.get("deadline").toString()));
+        System.out.println(paramMap.get("deadLine").toString());
+        orderInfo.setDeadLine(simpleDateFormat.parse(paramMap.get("deadLine").toString()));
+        orderInfo.setDeadLine(new Date());
         orderInfo.setMoney(paramMap.get("money").toString());
         orderInfo.setNote(paramMap.get("note").toString());
         orderInfo.setSex(paramMap.get("sex").toString());
         orderInfo.setSize(paramMap.get("size").toString());
         orderInfo.setShipAddress(paramMap.get("shipAddress").toString());
-        orderInfo.setSendAddress(paramMap.get("sendAddress").toString());
+        orderInfo.setSendAddress(paramMap.get("sendAddress").toString());*/
         orderMapper.addInfo(orderInfo);
-        return orderInfo.getId();
+        return orderInfo.getID();
     }
 
 
@@ -103,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
     public int userOrder(HashMap<String, Object> paramMap) throws Exception {
 
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setReceiverID(Integer.valueOf(paramMap.get("receiverID").toString()));
         orderInfo.setReceiveTel(paramMap.get("receiver_telephone").toString());
         orderInfo.setOrderStatus(OrderTypeEnum.RECEIVED.getCode());
@@ -134,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
 //    @Cacheable(value="common",key="#paramMap")
     public int deletesender(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setSenderID(Integer.valueOf(paramMap.get("SendUserID").toString()));
         return orderMapper.deletesenderInfo(orderInfo);
     }
@@ -159,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void deletereceiver(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderMapper.deletereceiverInfo(orderInfo);
     }
 
@@ -172,7 +172,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int changestatus(HashMap<String, Object> paramMap, int orderStatusID) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setOrderStatus(orderStatusID);
         return orderMapper.changeInfostatus(orderInfo);
     }
@@ -200,7 +200,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderInfo> querySingleOrder(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         return orderMapper.querySingleInfoOrder(orderInfo);
     }
 
@@ -214,7 +214,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int senderEdit(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setTel(paramMap.get("telephone").toString());
         return orderMapper.senderEditInfo(orderInfo);
     }
@@ -229,7 +229,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public int geterEdit(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setId(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setReceiveTel(paramMap.get("receiver_telephone").toString());
         orderInfo.setReceiverID(Integer.valueOf(paramMap.get("receiverID").toString()));
         return orderMapper.geterEditInfo(orderInfo);

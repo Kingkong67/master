@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
+import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.OrderInfo;
 import spingboot.express.pojo.User;
@@ -48,11 +49,11 @@ public class OrderController {
      *@修改人和其它信息
      */
     @PostMapping("/writeInfo")
-    public Result writeInfo(@RequestBody HashMap<String, Object> paramMap) {
+    public Result writeInfo(@RequestBody OrderInfo orderInfo) {
         Result result = new Result();
         try {
             log.info("【发单用户填写信息开始】 writeInfo start");
-            orderService.add(paramMap);
+            orderService.add(orderInfo);
             result.setIsSuccess(true);
             log.info("【增加订单信息成功】 writeInfo success");
             return result;
@@ -81,9 +82,9 @@ public class OrderController {
                 OrderInfo orderInfo = k.get(i);
                 if ((new Date().getTime()) - 86400000 > orderInfo.getDeadLine().getTime()) {
                     log.info("开始自动帮助发单确认收到订单");
-                    orderService.updateorderstatusbyid(orderInfo.getId());
+                    orderService.updateorderstatusbyid(orderInfo.getID());
                     log.info("给接单用户酬金");
-                    orderService.changeisValid(orderInfo.getId());
+                    orderService.changeisValid(orderInfo.getID());
                 }
             }
             log.info("【查询所有订单列表开始】 showAllOrderInfoList start");

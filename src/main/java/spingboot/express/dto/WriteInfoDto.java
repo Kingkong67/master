@@ -1,22 +1,26 @@
-package spingboot.express.pojo;
-/**
- * 信息模块pojo
- */
+package spingboot.express.dto;
 
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * @Description:
+ * @Author: wanghu
+ * @Date: Create in 2020 11 2020/11/22
+ * @return:
+ * @throws:
+ */
 @Data
-public class OrderInfo implements Serializable {
+public class WriteInfoDto implements Serializable {
 
-    private static final long serialVersionUID = 3263532385260724506L;
+    private static final long serialVersionUID = 993707896101209416L;
 
     /**
      * 订单ID
      */
-    private Integer ID;
+    private Integer id;
 
     /**
      * 订单接收电话
@@ -44,7 +48,7 @@ public class OrderInfo implements Serializable {
     private String sex;
 
     /**
-     *额外补充
+     * 额外补充
      */
     private String note;
 
@@ -66,7 +70,8 @@ public class OrderInfo implements Serializable {
     /**
      * 发货人ID
      */
-    private Integer senderID;;
+    private Integer senderID;
+    ;
 
     /**
      * 收货人电话
@@ -94,9 +99,9 @@ public class OrderInfo implements Serializable {
     private Date receiveTime;
 
     @Override
-    public String toString(){
-        return "电话："+tel+"  取件地址："+shipAddress+"  送货地址："+sendAddress+"  工资："+money+"  备注："+note+" 电话:"+tel
-                +"型号："+size+"截止时间："+deadLine+"接单人电话："+receiveTel+"接单人ID:"+receiverID
-                +"订单状态ID:"+orderStatus+"发单人ID:"+senderID+"创建时间："+createTime+"是否有效："+isValid;
+    public String toString() {
+        return "电话：" + tel + "  取件地址：" + shipAddress + "  送货地址：" + sendAddress + "  工资：" + money + "  备注：" + note
+                + "型号：" + size + "截止时间：" + deadLine + "接单人电话：" + receiveTel + "接单人ID:" + receiverID
+                + "订单状态ID:" + orderStatus + "发单人ID:" + senderID + "创建时间：" + createTime + "是否有效：" + isValid;
     }
 }

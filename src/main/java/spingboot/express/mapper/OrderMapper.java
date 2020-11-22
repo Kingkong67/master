@@ -4,12 +4,12 @@ package spingboot.express.mapper;
  */
 
 
-import org.springframework.stereotype.Repository;
+import org.apache.ibatis.annotations.Mapper;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.List;
 
-@Repository
+@Mapper
 public interface OrderMapper {
     /**
      * function:发单人填写发单信息的接口
