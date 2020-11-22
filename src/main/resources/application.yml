@@ -18,4 +18,18 @@ spring:
     password: 15226221250
 
 #日志配置
+logging:
+  level:
+    org.springframework: debug
 
+#mybatis-plus:
+#  mapperLocations: classpath:mybatis/**/*Mapper.xml
+#    #实体扫描，多个package用逗号或者分号分隔
+#    typeAliasesPackage: spingboot.express.pojo
+
+# PageHelper分页插件
+#pagehelper:
+#  helperDialect: mysql
+#  reasonable: true
+#  supportMethodsArguments: true
+#  params: count=countSql

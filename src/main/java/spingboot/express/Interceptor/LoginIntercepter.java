@@ -50,24 +50,25 @@ public class LoginIntercepter implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object arg2)throws Exception{
-        HttpSession session = request.getSession();
-        if (session.getAttribute("user")!=null){
-          return true;
-        }else{
-            String uri = request.getRequestURI();
-//            拿到上一个页面的地址
-            String path = uri.substring(request.getContextPath().length());
-            String query = request.getQueryString();
-            if (query == null){
-                query="";
-            }else{
-                query = "?"+query;
-            }
-            String beforepath = path+query;
-            session.setAttribute("beforepath",beforepath);
-            response.sendRedirect(request.getContextPath()+"/static/html/kuaidi.html");
-            return false;
-        }
+//        HttpSession session = request.getSession();
+//        if (session.getAttribute("user")!=null){
+//          return true;
+//        }else{
+//            String uri = request.getRequestURI();
+////            拿到上一个页面的地址
+//            String path = uri.substring(request.getContextPath().length());
+//            String query = request.getQueryString();
+//            if (query == null){
+//                query="";
+//            }else{
+//                query = "?"+query;
+//            }
+//            String beforepath = path+query;
+//            session.setAttribute("beforepath",beforepath);
+//            response.sendRedirect(request.getContextPath()+"/static/html/kuaidi.html");
+//            return false;
+//        }
+        return true;
     }
 
 }
