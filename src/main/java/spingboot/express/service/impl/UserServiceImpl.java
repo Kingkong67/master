@@ -1,11 +1,14 @@
 package spingboot.express.service.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import spingboot.express.commons.Result;
+import spingboot.express.commons.UserCommonStatus;
+import spingboot.express.enums.ErrorCode;
+import spingboot.express.exception.ServiceException;
 import spingboot.express.mapper.UserMapper;
 import spingboot.express.pojo.User;
 import spingboot.express.service.UserService;
@@ -20,7 +23,7 @@ public class UserServiceImpl implements UserService {
     /**
      * 日志管理工具
      */
-    protected static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+    protected static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private UserMapper userMapper;
@@ -52,23 +55,27 @@ public class UserServiceImpl implements UserService {
         return checkUserLoginStatus(user);
     }
 
+    /**
+     * 检测用户登录状态
+     * @param user 传入用户信息
+     * @return 返回状态值
+     */
     private int checkUserLoginStatus(User user) {
         try {
             User userInfo = userMapper.getUserByTel(user.getTelephone());
-            if (StringUtils.isEmpty(userInfo)) {
-                logger.warn("【数据库中用户信息不存在】=> {}", userInfo);
+            if (userInfo == null) {
+                logger.warn("【数据库中用户信息不存在】");
                 logger.info("【用户注册开始】");
                 userMapper.addUser(user);
                 logger.info("【用户注册结束】");
-                return Result.SUCCESS_CODE;
+                return UserCommonStatus.SUCCESS.getCode();
             } else {
                 logger.error("【用户手机号码已被注册】");
-                return Result.FAIL_CODE;
+                return UserCommonStatus.FAIL.getCode();
             }
         } catch (Exception e) {
             logger.error("【用户注册失败】=> {}", e);
-//            throw new ServiceException(ErrorCode.DATABASE_ERROR);
-            return Result.FAIL_CODE;
+            throw new ServiceException(ErrorCode.DATABASE_ERROR);
         }
     }
 
@@ -178,7 +185,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User viewIfFullUserInformation(HashMap<String, Object> paramMap) throws Exception {
         User user = userMapper.getUserByUserID(Long.parseLong(String.valueOf(paramMap.get("userID"))));
-        if (StringUtils.isEmpty(user)) {
+        if (user == null) {
             logger.error("【用户信息不完善】");
             return null;
         } else {
@@ -244,7 +251,7 @@ public class UserServiceImpl implements UserService {
         user.setTelephone(String.valueOf(paramMap.get("telephone")));
         user.setPassword((String.valueOf(paramMap.get("password"))));
         User isLoginUser = userMapper.getUserByTel(String.valueOf(paramMap.get("telephone")));
-        if (StringUtils.isEmpty(isLoginUser)) {
+        if (isLoginUser == null) {
             logger.error("【用户信息不存在】");
             return null;
         } else {
