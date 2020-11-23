@@ -13,6 +13,14 @@ public class OrderInfo implements Serializable {
 
     private static final long serialVersionUID = 3263532385260724506L;
 
+    public Integer getID() {
+        return ID;
+    }
+
+    public void setID(Integer ID) {
+        this.ID = ID;
+    }
+
     /**
      * 订单ID
      */

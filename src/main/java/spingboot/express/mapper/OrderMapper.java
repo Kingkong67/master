@@ -10,12 +10,13 @@ import spingboot.express.pojo.OrderInfo;
 import java.util.List;
 
 @Repository
+//@Mapper
 public interface OrderMapper {
     /**
      * function:发单人填写发单信息的接口
      * @param orderInfo
      */
-     void addInfo(OrderInfo orderInfo);
+     int addInfo(OrderInfo orderInfo);
 
     /**
      * 查询所有订单接口

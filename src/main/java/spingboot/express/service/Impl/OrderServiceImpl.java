@@ -47,8 +47,7 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setShipAddress(paramMap.get("shipAddress").toString());
         orderInfo.setSendAddress(paramMap.get("sendAddress").toString());*/
         orderMapper.addInfo(orderInfo);
-//        return orderInfo.getID();
-        return 1;
+        return orderInfo.getID();
     }
 
 

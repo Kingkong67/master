@@ -10,6 +10,7 @@ import spingboot.express.pojo.User;
 
 
 @Repository
+//@Mapper
 public interface UserMapper {
 
     /**

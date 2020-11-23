@@ -22,7 +22,7 @@ logging:
   level:
     org.springframework: debug
 
-mybatis-plus:
+mybatis:
   mapperLocations: classpath:mybatis/**/*Mapper.xml
   configLocation: classpath:mybatis/mybatis-config.xml
   #实体扫描，多个package用逗号或者分号分隔
@@ -37,9 +37,8 @@ mybatis-plus:
       #      table-prefix: tb_
       #表名、是否使用下划线命名
       table-underline: true
-  configuration:
-    call-setters-on-nulls: true
-
+    configuration:
+      call-setters-on-nulls: true
 # PageHelper分页插件
 #pagehelper:
 #  helperDialect: mysql

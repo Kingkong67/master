@@ -28,7 +28,7 @@
 
     <!--发单人发送快递信息-->
     <!--  允许JDBC自动生成主键，并返回  -->
-    <insert id="addInfo" parameterType="spingboot.express.pojo.OrderInfo" keyProperty="id">
+    <insert id="addInfo" parameterType="spingboot.express.pojo.OrderInfo" keyProperty="ID" useGeneratedKeys="true">
         insert into orderInfo
         <trim prefix="(" suffix=")" suffixOverrides=",">
               <if test="tel != null">
@@ -55,11 +55,14 @@
               <if test="deadLine != null">
                   dead_line,
               </if>
-              <if test="senderID ！= null">
+              <if test="senderID != null">
                   sender_id,
               </if>
               <if test="createTime == null">
                   create_time,
+              </if>
+              <if test="receiveTel != null">
+                  receive_tel,
               </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -87,11 +90,14 @@
             <if test="deadLine != null">
                 #{deadLine,jdbcType=TIMESTAMP},
             </if>
-            <if test="senderID ！= null">
+            <if test="senderID != null">
                 #{senderID,jdbcType=INTEGER},
             </if>
             <if test="createTime == null">
                 now(),
+            </if>
+            <if test="receiveTel != null">
+                #{receiveTel,jdbcType=VARCHAR}
             </if>
         </trim>
     </insert>
