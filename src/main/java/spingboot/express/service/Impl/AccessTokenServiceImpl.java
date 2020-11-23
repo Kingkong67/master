@@ -1,10 +1,10 @@
 package spingboot.express.service.Impl;
 
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.impl.DefaultClaims;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.codec.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -60,7 +60,13 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      */
     @Override
     public String createRefreshToken(String userCode, String platformCode) {
-        return null;
+        long currentTime = System.currentTimeMillis();
+        SecretKey key = new SecretKeySpec(jwtRefreshTokenSecretByte, 0, jwtRefreshTokenSecretByte.length, "AES");
+        DefaultClaims defaultClaims = new DefaultClaims();
+        defaultClaims.setId(this.jwtId).setSubject(userCode).setAudience(platformCode).setIssuedAt(new Date(currentTime))
+                .setExpiration(new Date(currentTime + TimeRange.ONE_DAY_MILLS));
+        JwtBuilder jwtBuilder = Jwts.builder().setClaims(defaultClaims).signWith(SignatureAlgorithm.HS256, key);
+        return jwtBuilder.compact();
     }
 
 
@@ -74,7 +80,14 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      */
     @Override
     public boolean isRefreshTokenValid(String platformCode, String userCode, String refreshToken) {
-        return false;
+        try {
+            Jwt<Header, Claims> claimsJwt = Jwts.parser().requireSubject(userCode).requireAudience(platformCode)
+                    .setSigningKey(this.jwtRefreshTokenSecretByte).parseClaimsJwt(refreshToken);
+            return claimsJwt.getBody().getExpiration().after(new Date());
+        } catch (Exception e) {
+            log.error("check the refreshToken failed, the exception is {}.", e.getMessage());
+            return false;
+        }
     }
 
 
@@ -89,7 +102,13 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      */
     @Override
     public boolean isTokenValid(String token, String secret, long timeStamp, String userCode) {
-        return false;
+        String encrypted = DigestUtils.sha256Hex(secret + ":" + token + ":" + timeStamp);
+        if (!encrypted.equals(token)) {
+            log.error("user {} tries to login in with a invalid token {}.", userCode, token);
+            return false;
+        } else {
+            return true;
+        }
     }
 
 
@@ -103,7 +122,27 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      */
     @Override
     public String isAccessTokenValid(String userCode, String platformCode, String token) {
-        return null;
+        try {
+            JwtParser jwtParser = Jwts.parser();
+            log.info("add userCode");
+            if (StringUtils.isNoneEmpty(userCode)) {
+                jwtParser= jwtParser.requireSubject(userCode);
+            }
+            log.info("add platformCode");
+            if (StringUtils.isNotEmpty(platformCode)) {
+                jwtParser = jwtParser.requireAudience(platformCode);
+            }
+            log.info("check token");
+            Jwt<Header, Claims> claimsJwt = jwtParser.setSigningKey(Base64.decode(jwtAccessTokenSecret)).parseClaimsJwt(token);
+            log.info("check token done.");
+            if (claimsJwt.getBody().getExpiration().after(new Date())) {
+                return claimsJwt.getBody().getSubject();
+            }
+            return "failed";
+        } catch (Exception e) {
+            log.error("The token {} is invalid.", token);
+            return "exception";
+        }
     }
 
     /**

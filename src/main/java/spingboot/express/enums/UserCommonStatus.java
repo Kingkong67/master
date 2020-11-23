@@ -8,7 +8,7 @@ public enum UserCommonStatus {
     /**
      *（登录成功，注册成功，用户完善信息成功，用户注销成功）
      */
-    SUCCESS(222, "成功"),
+    SUCCESS(222, "用户操作成功"),
 
     /**
      * 后端服务器出错
@@ -42,15 +42,15 @@ public enum UserCommonStatus {
 
     private int code;
 
-    private String name;
+    private String message;
 
-    private UserCommonStatus(int code, String name) {
+    private UserCommonStatus(int code, String message) {
         this.code = code;
-        this.name = name;
+        this.message = message;
     }
 
 
-    public static String getNameByCode(int code) {
+    public static String getMessageByCode(int code) {
         String name = "";
         for (UserCommonStatus userCommonStatus : UserCommonStatus.values()){
             name = String.valueOf(code);
@@ -58,8 +58,8 @@ public enum UserCommonStatus {
         return name;
     }
 
-    public static int getCodeByName(String name){
-        return UserCommonStatus.valueOf(name).code;
+    public static int getCodeByName(String message){
+        return UserCommonStatus.valueOf(message).code;
     }
 
     public int getCode() {
@@ -70,11 +70,11 @@ public enum UserCommonStatus {
         this.code = code;
     }
 
-    public String getName() {
-        return name;
+    public String getMessage() {
+        return message;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

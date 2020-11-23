@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
+import spingboot.express.enums.ErrorCode;
 import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.pojo.User;
 import spingboot.express.service.AccessTokenService;
@@ -29,11 +30,25 @@ public class UserController {
     @Autowired
     private AccessTokenService accessTokenService;
 
+    private String userCode;
+
+    private String platformCode;
+
+    @Autowired
+    public void setCode() {
+        userCode = CodeMakerUtil.createUserCode();
+        platformCode = CodeMakerUtil.createPlatformCode();
+    }
+
     @PostMapping("/getToken")
     public String testToken() {
-        String userCode = CodeMakerUtil.createUserCode();
-        String platformCode = CodeMakerUtil.createPlatformCode();
+        log.info("UserCode = > {}.", userCode);
         return accessTokenService.createAccessTokenByUserCode(platformCode, userCode);
+    }
+
+    @GetMapping("/checkTokenValid")
+    public String checkTokenValid(@RequestBody HashMap<String,Object> paramMap) {
+        return accessTokenService.isAccessTokenValid(userCode, platformCode,String.valueOf(paramMap.get("token")));
     }
 
     @Value("${server.port}")
@@ -67,22 +82,22 @@ public class UserController {
             //SessionHandler.save(user, httpSession);
             if (user != null) {
                 result.setIsSuccess(true);
-                result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
-                result.setMessage("用户密码登录成功！");
-                result.setData(userService.getAllInfo(paramMap));
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                result.setData(userService.getUserBasicInfo(user));
                 log.info("[用户密码登录] => loginUser success!");
                 return result;
             } else {
-                log.warn("[用户密码登录失败] => loginUser failed!");
-                result.setCode(UserCommonStatus.getCodeByName("NOT_EXIST"));
-                result.setMessage("用户手机号码不存在");
+                log.error("[用户密码登录失败] => loginUser failed!");
+                result.setCode(ErrorCode.MOBILE_PHONE_INVALID.getErrorCode());
+                result.setMessage(ErrorCode.MOBILE_PHONE_INVALID.getErrorMessage());
                 return result;
             }
         } catch (Exception e) {
             log.error("[用户密码登录] => loginUser failed!" + e);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
+            result.setCode(ErrorCode.USER_SIGN_IN_FAILED.getErrorCode());
             result.setIsSuccess(false);
-            result.setMessage("用户密码登录失败");
+            result.setMessage(ErrorCode.USER_SIGN_IN_FAILED.getErrorMessage());
             return result;
         }
     }
@@ -98,24 +113,23 @@ public class UserController {
         Result result = new Result();
         try {
             User user = userService.loginWithCode(paramMap);
-            //SessionHandler.save(user, httpSession);
             result.setIsSuccess(true);
-            result.setData(userService.getAllInfo(paramMap));
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
-            result.setMessage("用户短信验证码登录成功！");
+            result.setData(userService.getUserBasicInfo(user));
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             log.info("[用户短信验证码登录] => loginWithCode success!");
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
-            result.setMessage("用户短信验证码登录失败！");
-            log.error("[用户短信验证码登录] => loginWithCode failed!", e);
+            result.setCode(ErrorCode.USER_SIGN_IN_FAILED.getErrorCode());
+            result.setMessage(ErrorCode.USER_SIGN_IN_FAILED.getErrorMessage());
+            log.error("[用户短信验证码登录] => loginWithCode failed, the exception is {}.", e.getMessage());
             return result;
         }
 
     }
     /**
-     * 用户忘记密码登录接口
+     * 用户忘记密码登录接口（使用验证码登录）
      *
      * @param paramMap 传入储存参数集合
      * @return 返回Result对象
@@ -126,18 +140,17 @@ public class UserController {
         log.info("[用户忘记密码登录]开始-----");
         try {
             User user = userService.loginWithCode(paramMap);
-            //SessionHandler.save(user, httpSession);
             log.info("[用户忘记密码登录] forgetPwd success!");
             result.setIsSuccess(true);
             result.setData(userService.getAllInfo(paramMap));
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
-            result.setMessage("用户忘记密码登录成功！");
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             return result;
         } catch (Exception e) {
             log.info("[用户忘记密码登录] forgetPwd failed!", e);
             result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
-            result.setMessage("用户忘记密码登录失败！");
+            result.setCode(ErrorCode.USER_SIGN_IN_FAILED.getErrorCode());
+            result.setMessage(ErrorCode.USER_SIGN_IN_FAILED.getErrorMessage());
             return result;
         }
     }
@@ -154,15 +167,15 @@ public class UserController {
         try {
             userService.resetPwd(paramMap);
             log.info("[用户重置密码] resetPwd success!");
-            result.setMessage("用户重置密码成功！");
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             result.setIsSuccess(true);
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
             return result;
         } catch (Exception e) {
             log.error("[用户重置密码] resetPwd failed!", e);
-            result.setMessage("用户重置密码失败！");
+            result.setMessage(ErrorCode.PASSWORD_RESET_FAILED.getErrorMessage());
             result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
+            result.setCode(ErrorCode.PASSWORD_RESET_FAILED.getErrorCode());
             return result;
         }
     }
@@ -178,16 +191,16 @@ public class UserController {
         log.info("[用户获取验证码]开始-----");
         try {
             log.info("[用户获取验证码] getCode success!");
-            result.setMessage("用户获取验证码成功！");
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             result.setData(userService.getCode(paramMap));
             result.setIsSuccess(true);
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
             return result;
         } catch (Exception e) {
             log.error("[用户获取验证码] getCode failed!", e);
-            result.setMessage("用户获取验证码失败！");
+            result.setMessage(ErrorCode.GET_VALID_CODE_FAILED.getErrorMessage());
             result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
+            result.setCode(ErrorCode.GET_VALID_CODE_FAILED.getErrorCode());
             return result;
         }
     }
@@ -200,26 +213,26 @@ public class UserController {
     @RequestMapping(value = "/addUser", method = RequestMethod.POST)
     public Result addUser(@RequestBody HashMap<String, Object> paramMap) {
         Result result = new Result();
-        log.info("[用户注册]开始------");
+        log.info("%%%%%%%%% User sign up start %%%%%%%%%");
         try {
-            if (userService.addUser(paramMap) == 200) {
+            if (userService.addUser(paramMap) == UserCommonStatus.SUCCESS.getCode()) {
                 result.setIsSuccess(true);
-                result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
                 result.setData(userService.getAllInfo(paramMap));
-                result.setMessage("用户注册成功！");
-                log.info("[用户注册] => addUser success!");
-            } else if (userService.addUser(paramMap) == 404) {
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                log.info("User signs up success!");
+            } else if (userService.addUser(paramMap) == UserCommonStatus.ERROR.getCode()) {
                 result.setIsSuccess(false);
-                result.setCode(UserCommonStatus.getCodeByName("REPEAT"));
-                result.setMessage("用户注册失败，该手机号已被注册！");
-                log.error("该手机号已经被注册过了");
+                result.setCode(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorCode());
+                result.setMessage(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorMessage());
+                log.error("The Mobile Phone Number {} is sign up by Others.", paramMap.get("telephone"));
             }
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
-            result.setMessage("用户注册失败！");
-            log.error("[用户注册] => addUser failed!", e);
+            result.setCode(ErrorCode.USER_SIGN_UP_FAILED.getErrorCode());
+            result.setMessage(ErrorCode.USER_SIGN_UP_FAILED.getErrorMessage());
+            log.error("User signs up failed, the exception is = {}.", e.getMessage());
             return result;
         }
     }
@@ -235,15 +248,15 @@ public class UserController {
         try {
             userService.deleteUser(paramMap);
             log.info("[用户注销] => deleteUser success!");
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
             result.setIsSuccess(true);
-            result.setMessage("用户注销成功");
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             return result;
         } catch (Exception e) {
             log.error("[用户注销] => deleteUser failed!", e);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
+            result.setCode(ErrorCode.USER_DISABLED_FAILED.getErrorCode());
             result.setIsSuccess(false);
-            result.setMessage("用户注销失败");
+            result.setMessage(ErrorCode.USER_DISABLED_FAILED.getErrorMessage());
             return result;
         }
     }
@@ -259,17 +272,17 @@ public class UserController {
         log.info("[用户信息获取] 开始-----");
         try {
             Map<String, Object> map = userService.getBasicUser(paramMap);
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
             log.info("[用户信息获取] getBasicUser success!");
             result.setIsSuccess(true);
-            result.setMessage("获取用户信息成功！");
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             result.setData(map);
             return result;
         } catch (Exception e) {
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
+            result.setCode(ErrorCode.USER_INFO_NOTFOUND.getErrorCode());
             log.error("[用户信息获取] getBasicUser failed!", e);
             result.setIsSuccess(false);
-            result.setMessage("获取用户信息失败！");
+            result.setMessage(ErrorCode.USER_INFO_NOTFOUND.getErrorMessage());
             return result;
         }
     }
@@ -283,47 +296,20 @@ public class UserController {
     @RequestMapping(value = "/realUser", method = RequestMethod.POST)
     public Result realUser(@RequestBody HashMap<String, Object> paramMap) {
         Result result = new Result();
-        log.info("[用户实名制] 开始-----");
+        log.info("【用户实名制】 开始-----");
         try {
             userService.realUser(paramMap);
             result.setIsSuccess(true);
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
-            result.setMessage("用户实名制成功");
+            result.setCode(UserCommonStatus.SUCCESS.getCode());
+            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             log.info("[用户实名制] => realUser success！");
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
             log.error("[用户实名制] => realUser failed!", e);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
-            result.setMessage("[用户实名制] => realUser failed!");
+            result.setCode(ErrorCode.USER_IDENTITY_FAILED.getErrorCode());
+            result.setMessage(ErrorCode.USER_IDENTITY_FAILED.getErrorMessage());
             return result;
         }
     }
-
-    /**
-     * 获取用户取货地址
-     *
-     * @param paramMap 传入存储参数集合
-     * @return 返回Result接口
-     */
-    @RequestMapping(value = "/getUserAddress", method = RequestMethod.POST)
-    public Result getAddress(@RequestBody HashMap<String, Object> paramMap) {
-        Result result = new Result();
-        log.info("[获取用户默认地址] 开始-----");
-        try {
-            result.setData(userService.getAddress(paramMap));
-            result.setIsSuccess(true);
-            result.setCode(UserCommonStatus.getCodeByName("SUCCESS"));
-            result.setMessage("获取用户地址成功");
-            log.info("[获取用户地址成功] => getUserAddress success！");
-            return result;
-        } catch (Exception e) {
-            result.setIsSuccess(false);
-            result.setCode(UserCommonStatus.getCodeByName("ERROR"));
-            log.error("[获取用户地址失败] => getUserAddress failed！", e);
-            result.setMessage("[获取用户地址失败] => getUserAddress failed!");
-            return result;
-        }
-    }
-
 }

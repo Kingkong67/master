@@ -37,7 +37,15 @@ public interface UserService {
 
     User getAllInfo(HashMap<String, Object> paramMap) throws Exception;
 
+    @Deprecated
     String getAddress(HashMap<String, Object> paramMap) throws Exception;
+
+    /**
+     * 获取用户基本信息
+     * @param user user
+     * @return 返回用户基本信息
+     */
+    User getUserBasicInfo(User user) throws Exception;
 
 
 }

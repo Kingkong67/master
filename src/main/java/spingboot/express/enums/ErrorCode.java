@@ -8,17 +8,27 @@ public enum ErrorCode {
 
     MOBILE_PHONE_INVALID(1000, "用户手机号无效"),
     PASSWORD_INVALID(1001, "密码无效"),
+    TOKEN_INVALID(1002, "token值失效"),
 
-    USER_NAME_PWD_ERROR(3000, "用户名/密码错误"),
-    USER_INFO_NOTFIND(3001, "用户信息查找不到"),
-    TOKEN_INVALID(3001, "token值失效"),
+    USER_NAME_PWD_ERROR(2000, "用户名/密码错误"),
+    DATABASE_ERROR(2001, "数据库层错误"),
 
-    MOBILE_PHONE_USED_BY_OTHERS(5000, "手机号已被其它用户注册"),
-    USER_DISABLED(5001, "用户已注销"),
-    USER_INACTIVE(5002, "用户未注册"),
 
-    DATABASE_ERROR(8888, "数据库层错误"),
-    SERVICE_CALL_FAILED(9999, "服务器调用失败");
+
+    MOBILE_PHONE_USED_BY_OTHERS(3000, "手机号已被其它用户注册"),
+    USER_INFO_NOTFOUND(3001, "用户信息查找不到"),
+    USER_DISABLED(3002, "用户已注销"),
+
+    USER_INACTIVE(4000, "用户未注册"),
+
+
+    SERVICE_CALL_FAILED(5000, "服务器调用失败"),
+    USER_SIGN_UP_FAILED(5001, "用户注册失败"),
+    USER_DISABLED_FAILED(5002, "用户注销失败"),
+    GET_VALID_CODE_FAILED(5003, "用户获取验证码失败"),
+    PASSWORD_RESET_FAILED(5004, "用户密码重置失败"),
+    USER_IDENTITY_FAILED(5005,"用户实名制失败"),
+    USER_SIGN_IN_FAILED(5006, "用户登录失败");
 
 
     private int errorCode;

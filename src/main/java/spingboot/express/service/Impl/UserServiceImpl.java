@@ -70,10 +70,10 @@ public class UserServiceImpl implements UserService {
                 return UserCommonStatus.SUCCESS.getCode();
             } else {
                 logger.error("【用户手机号码已被注册】");
-                return UserCommonStatus.FAIL.getCode();
+                return UserCommonStatus.ERROR.getCode();
             }
         } catch (Exception e) {
-            logger.error("【用户注册失败】=> {}", e);
+            logger.error("【用户注册失败】=> {}", e.getMessage());
             throw new ServiceException(ErrorCode.DATABASE_ERROR);
         }
     }
@@ -259,5 +259,13 @@ public class UserServiceImpl implements UserService {
             }
         }
         return null;
+    }
+
+    public User getUserBasicInfo(User user) throws Exception {
+        logger.info("【获取用户基本信息】 => {}.", user.getId());
+        user.setPassword("");
+        user.setIdCardImage(null);
+        user.setStuCardImage(null);
+        return user;
     }
 }
