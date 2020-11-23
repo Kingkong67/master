@@ -4,18 +4,18 @@ package spingboot.express.mapper;
  */
 
 
-import org.apache.ibatis.annotations.Mapper;
+import org.springframework.stereotype.Repository;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.List;
 
-@Mapper
+@Repository
 public interface OrderMapper {
     /**
      * function:发单人填写发单信息的接口
      * @param orderInfo
      */
-     int addInfo(OrderInfo orderInfo);
+     void addInfo(OrderInfo orderInfo);
 
     /**
      * 查询所有订单接口
@@ -118,6 +118,6 @@ public interface OrderMapper {
      * @param id
      * @return
      */
-     int updateorderstatus(int id);
+     int updateOrderStatusById(int id);
 
 }

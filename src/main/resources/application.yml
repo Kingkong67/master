@@ -23,9 +23,10 @@ logging:
     org.springframework: debug
 
 mybatis-plus:
-  mapperLocations: classpath:mybatis/*.xml
+  mapperLocations: classpath:mybatis/**/*Mapper.xml
+  configLocation: classpath:mybatis/mybatis-config.xml
   #实体扫描，多个package用逗号或者分号分隔
-  typeAliasesPackage: spingboot.express.pojo.*
+  typeAliasesPackage: spingboot.express.pojo
   global-config:
     #是否控制台 print mybatis-plus 的 LOGO
     banner: true

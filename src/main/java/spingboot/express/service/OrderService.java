@@ -136,7 +136,8 @@ public interface OrderService {
      * 用户长时间未点击确认，自动确认
      * @param id
      */
-     void updateorderstatusbyid(int id) throws Exception;
+     void updateOrderStatusById(int id) throws Exception;
 
 }
+
 

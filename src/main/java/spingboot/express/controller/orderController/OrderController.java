@@ -8,6 +8,7 @@ import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import spingboot.express.commons.PageDomain;
 import spingboot.express.commons.Result;
 import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.enums.OrderTypeEnum;
@@ -67,29 +68,17 @@ public class OrderController {
     /**
      * 展示所有用户的有效订单信息
      *
-     * @param paramMap
+     * @param
      * @return
      */
     @GetMapping("/list")
-    public Result showAllOrderInfoList(@RequestBody HashMap<String, Object> paramMap) {
+    public Result showAllOrderInfoList(PageDomain pageDomain) {
         Result result = new Result();
         try {
-            /**
-             * 对于超过24小时仍未点击确认的订单，系统自动确认
-             */
-            List<OrderInfo> k = orderService.findall();
-            for (int i = 0; i < k.size(); i++) {
-                OrderInfo orderInfo = k.get(i);
-                if ((new Date().getTime()) - 86400000 > orderInfo.getDeadLine().getTime()) {
-                    log.info("开始自动帮助发单确认收到订单");
-                    orderService.updateorderstatusbyid(orderInfo.getID());
-                    log.info("给接单用户酬金");
-                    orderService.changeisValid(orderInfo.getID());
-                }
-            }
+
             log.info("【查询所有订单列表开始】 showAllOrderInfoList start");
-            PageHelper.startPage(Integer.valueOf(paramMap.get("pageCount").toString()),
-                    Integer.valueOf(paramMap.get("countPerPage").toString()));
+            PageHelper.startPage(Integer.valueOf(pageDomain.getPageSize().toString()),
+                    Integer.valueOf(pageDomain.getPageNum().toString()));
             List<OrderInfo> list = orderService.findall();
             PageInfo pageInfo = new PageInfo(list, 10);
 
@@ -104,7 +93,27 @@ public class OrderController {
         }
     }
 
-
+    /**
+     *@描述 判断订单是否还有效，筛选有效的订单
+     *@参数 []
+     *@返回值 boolean
+     *@创建人 wanghu
+     *@创建时间 2020/11/23 12:34 上午
+     *@修改人和其它信息
+     */
+    public boolean isValid() throws Exception{
+        List<OrderInfo> k = orderService.findall();
+        for (int i = 0; i < k.size(); i++) {
+            OrderInfo orderInfo = k.get(i);
+            if ((new Date().getTime()) > orderInfo.getDeadLine().getTime()) {
+                log.info("订单设置为无效状态");
+                orderService.updateOrderStatusById(orderInfo.getID());
+                log.info("给接单用户酬金");
+                orderService.changeisValid(orderInfo.getID());
+            }
+        }
+        return true;
+    }
 
     /**
      * 接单人接单，并添加接单人的电话信息,ID

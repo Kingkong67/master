@@ -47,7 +47,8 @@ public class OrderServiceImpl implements OrderService {
         orderInfo.setShipAddress(paramMap.get("shipAddress").toString());
         orderInfo.setSendAddress(paramMap.get("sendAddress").toString());*/
         orderMapper.addInfo(orderInfo);
-        return orderInfo.getID();
+//        return orderInfo.getID();
+        return 1;
     }
 
 
@@ -255,10 +256,9 @@ public class OrderServiceImpl implements OrderService {
      * @throws Exception
      */
     @Override
-    public void updateorderstatusbyid(int id) throws Exception {
-        orderMapper.updateorderstatus(id);
+    public void updateOrderStatusById(int id) throws Exception {
+        orderMapper.updateOrderStatusById(id);
     }
-
 
 
 }
