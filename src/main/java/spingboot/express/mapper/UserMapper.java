@@ -41,6 +41,16 @@ public interface UserMapper {
             "                    where id = #{id}")
     int changeUserInfo(User user);
 
+
+    /**
+     * 用户实名制
+     * @param user 传入用户相关信息
+     * @return
+     */
+    @Update("update user set id_card = #{id_card},idCardImage = #{idCardImage}, stuCardImage = #{stuCardImage} where id = #{id}")
+    int identityUserInfo(User user);
+
+
     /**
      * 注册用户
      * @param user 传入用户信息

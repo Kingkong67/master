@@ -9,6 +9,8 @@ import org.apache.shiro.codec.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import spingboot.express.constant.TimeRange;
+import spingboot.express.enums.ErrorCode;
+import spingboot.express.exception.ServiceException;
 import spingboot.express.service.AccessTokenService;
 
 import javax.crypto.SecretKey;
@@ -81,9 +83,11 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     @Override
     public boolean isRefreshTokenValid(String platformCode, String userCode, String refreshToken) {
         try {
-            Jwt<Header, Claims> claimsJwt = Jwts.parser().requireSubject(userCode).requireAudience(platformCode)
-                    .setSigningKey(this.jwtRefreshTokenSecretByte).parseClaimsJwt(refreshToken);
-            return claimsJwt.getBody().getExpiration().after(new Date());
+            log.info("get check refreshToken.");
+            Jws<Claims> claimsJws = Jwts.parser().requireSubject(userCode).requireAudience(platformCode)
+                    .setSigningKey(this.jwtRefreshTokenSecretByte).parseClaimsJws(refreshToken);
+            log.info("check refreshToken success, the refreshToken is {}.", refreshToken);
+            return claimsJws.getBody().getExpiration().after(new Date());
         } catch (Exception e) {
             log.error("check the refreshToken failed, the exception is {}.", e.getMessage());
             return false;
@@ -124,24 +128,20 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     public String isAccessTokenValid(String userCode, String platformCode, String token) {
         try {
             JwtParser jwtParser = Jwts.parser();
-            log.info("add userCode");
             if (StringUtils.isNoneEmpty(userCode)) {
                 jwtParser= jwtParser.requireSubject(userCode);
             }
-            log.info("add platformCode");
             if (StringUtils.isNotEmpty(platformCode)) {
                 jwtParser = jwtParser.requireAudience(platformCode);
             }
-            log.info("check token");
-            Jwt<Header, Claims> claimsJwt = jwtParser.setSigningKey(Base64.decode(jwtAccessTokenSecret)).parseClaimsJwt(token);
-            log.info("check token done.");
+            Jws<Claims> claimsJwt = jwtParser.setSigningKey(Base64.decode(this.jwtAccessTokenSecret)).parseClaimsJws(token);
             if (claimsJwt.getBody().getExpiration().after(new Date())) {
                 return claimsJwt.getBody().getSubject();
             }
-            return "failed";
+            return null;
         } catch (Exception e) {
-            log.error("The token {} is invalid.", token);
-            return "exception";
+            log.error("The token is invalid, the exception is {} caused by {}.", e.getMessage(), e.getCause());
+            throw new ServiceException(ErrorCode.TOKEN_INVALID, ErrorCode.TOKEN_INVALID.getErrorMessage());
         }
     }
 

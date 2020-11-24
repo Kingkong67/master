@@ -44,6 +44,7 @@ public interface AccessTokenService {
      * @param userCode  userCode
      * @return
      */
+    @Deprecated
     boolean isTokenValid(String token, String secret, long timeStamp, String userCode);
 
     /**

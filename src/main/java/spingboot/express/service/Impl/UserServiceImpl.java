@@ -145,13 +145,15 @@ public class UserServiceImpl implements UserService {
         /*user.setNickname(String.valueOf(paramMap.get("nickname")));
         user.setTelephone(String.valueOf(paramMap.get("telephone")));
         user.setPassword(String.valueOf(paramMap.get("password")));
-        user.setSex(Boolean.parseBoolean(String.valueOf(paramMap.get("sex"))));*/
+        user.setSex(Boolean.parseBoolean(String.valueOf(paramMap.get("sex"))));
         user.setAddress(String.valueOf(paramMap.get("address")));
-        user.setName(String.valueOf(paramMap.get("name")));
+        user.setName(String.valueOf(paramMap.get("name")));*/
+        //用户默认收货地址
+        user.setAddress(String.valueOf(paramMap.get("address")));
         user.setId_card(String.valueOf(paramMap.get("id_card")));
-        user.setIdCardImage(ImageUtil.change_to_Stream(String.valueOf(paramMap.get("idCardImage"))));
-        user.setStuCardImage(ImageUtil.change_to_Stream(String.valueOf(paramMap.get("stuCardImage"))));
-        userMapper.changeUserInfo(user);
+        user.setIdCardImage(ImageUtil.changeToStream(String.valueOf(paramMap.get("idCardImage"))));
+        user.setStuCardImage(ImageUtil.changeToStream(String.valueOf(paramMap.get("stuCardImage"))));
+        userMapper.identityUserInfo(user);
     }
 
     /**
