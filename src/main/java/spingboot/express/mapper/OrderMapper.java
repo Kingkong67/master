@@ -22,7 +22,13 @@ public interface OrderMapper {
      * 查询所有订单接口
      * @return
      */
-     List<OrderInfo> findAllInfo();
+     List<OrderInfo> findAll();
+
+    /**
+     * 查询所有有效订单借口
+     * @return
+     */
+    List<OrderInfo> findAllValid();
 
     /**
      * 接单用户接单pojo
@@ -112,7 +118,7 @@ public interface OrderMapper {
      * @param id
      * @return
      */
-     int changeisValidInfo(int id);
+     int isValid(int id);
 
     /**
      * 用户长时间未点击确认，自动确认

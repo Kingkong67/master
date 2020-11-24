@@ -40,11 +40,11 @@ mybatis:
     configuration:
       call-setters-on-nulls: true
 # PageHelper分页插件
-#pagehelper:
-#  helperDialect: mysql
-#  reasonable: true
-#  supportMethodsArguments: true
-#  params: count=countSql
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
 
 jwt:
   id: express_jwt_id

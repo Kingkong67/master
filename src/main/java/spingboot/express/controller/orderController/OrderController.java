@@ -75,13 +75,12 @@ public class OrderController {
     public Result showAllOrderInfoList(PageDomain pageDomain) {
         Result result = new Result();
         try {
-
+            isValid();
             log.info("【查询所有订单列表开始】 showAllOrderInfoList start");
-            PageHelper.startPage(Integer.valueOf(pageDomain.getPageSize().toString()),
-                    Integer.valueOf(pageDomain.getPageNum().toString()));
-            List<OrderInfo> list = orderService.findall();
-            PageInfo pageInfo = new PageInfo(list, 10);
-
+            PageHelper.startPage(pageDomain.getPageNum(),pageDomain.getPageSize());
+            List<OrderInfo> list = orderService.findAllValid();
+            PageInfo<OrderInfo> pageInfo = new PageInfo(list);
+            System.out.println(pageInfo.getList().size());
             result.setIsSuccess(true);
             log.info("【查询所有订单成功】 showAllOrderInfoList success");
             result.setData(pageInfo);
@@ -101,18 +100,17 @@ public class OrderController {
      *@创建时间 2020/11/23 12:34 上午
      *@修改人和其它信息
      */
-    public boolean isValid() throws Exception{
-        List<OrderInfo> k = orderService.findall();
+    public void isValid() throws Exception{
+        List<OrderInfo> k = orderService.findAll();
         for (int i = 0; i < k.size(); i++) {
             OrderInfo orderInfo = k.get(i);
-            if ((new Date().getTime()) > orderInfo.getDeadLine().getTime()) {
+            if (orderInfo.getDeadLine() != null && (new Date().getTime()) > orderInfo.getDeadLine().getTime()) {
                 log.info("订单设置为无效状态");
-                orderService.updateOrderStatusById(orderInfo.getID());
-                log.info("给接单用户酬金");
-                orderService.changeisValid(orderInfo.getID());
+//                orderService.updateOrderStatusById(orderInfo.getID());
+//                log.info("给接单用户酬金");
+                orderService.isValid(orderInfo.getID());
             }
         }
-        return true;
     }
 
     /**
@@ -308,7 +306,7 @@ public class OrderController {
         try {
             log.info("【接单人拿到订单开始】 getOrder start");
             orderService.changestatus(paramMap, OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode());
-            orderService.changeisValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+            orderService.isValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
             result.setIsSuccess(true);
             log.info("【接单人拿到订单成功】 getOrder success");
             return result;
@@ -459,7 +457,7 @@ public class OrderController {
         try {
             log.info("【发单人确认订单开始】 confirmReceipt start");
             orderService.changestatus(paramMap, OrderTypeEnum.CONFIRMED.getCode());
-            orderService.changeisValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+            orderService.isValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
             result.setIsSuccess(true);
             log.info("【发单人确认订单成功】 confirmReceipt success");
             log.info("【平台付费给用户】");
@@ -490,7 +488,7 @@ public class OrderController {
                 return result;
             } else {
                 orderService.changestatus(paramMap, OrderTypeEnum.NOT_CONFIRMED.getCode());
-                orderService.changeisValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+                orderService.isValid(Integer.valueOf(paramMap.get("orderInfoID").toString()));
                 result.setIsSuccess(true);
                 log.info("【发单人点击未确认订单成功】 noOrdersReceived success");
                 return result;

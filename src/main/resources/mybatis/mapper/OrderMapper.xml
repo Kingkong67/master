@@ -22,7 +22,7 @@
     <result column="receive_time" jdbcType="TIMESTAMP" property="receiveTime"/>
 </resultMap>
     <sql id="Base_Order_Info">
-       tel,ship_address,send_address,money,sex,size,note,dead_line,receiver_id,sender_id,
+       id,tel,ship_address,send_address,money,sex,size,note,dead_line,receiver_id,sender_id,
        receive_tel,order_status,create_time,is_valid,receive_time
     </sql>
 
@@ -115,11 +115,19 @@
         select  * from info where id = #{id}
     </select>
     <!--查询所有信息-->
-    <select id="findAllInfo" resultType="spingboot.express.pojo.OrderInfo">
+    <select id="findAll" resultMap="BaseResultMap">
+        select
+        id,dead_line
+        from orderInfo
+    </select>
+
+     <!--查询所有有效信息-->
+    <select id="findAllValid" resultMap="BaseResultMap">
         select
         <include refid="Base_Order_Info"/>
         from orderInfo
-        where isValid = 1
+        where
+        is_valid = 1
     </select>
 <!--查询所有发单信息-->
     <select id="findsendInfo" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
@@ -169,7 +177,7 @@
         update orderInfo set orderStatusID = #{orderStatusID} where id = #{id}
     </update>
 <!--改变订单的有效性-->
-    <update id="changeisValidInfo" parameterType="int">
-        update orderInfo set isValid = 0 where id = #{id}
+    <update id="isValid" parameterType="int" keyProperty="ID">
+        update orderInfo set is_valid = 0 where id = #{ID}
     </update>
 </mapper>

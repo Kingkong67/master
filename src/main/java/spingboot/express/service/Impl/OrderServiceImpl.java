@@ -3,11 +3,14 @@ package spingboot.express.service.Impl;
  * 信息模块实现类
  */
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import spingboot.express.commons.PageDomain;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.mapper.OrderMapper;
 import spingboot.express.pojo.OrderInfo;
@@ -86,10 +89,15 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public List<OrderInfo> findall() throws Exception {
+    public List<OrderInfo> findAll() throws Exception {
 
-        return orderMapper.findAllInfo();
+        return orderMapper.findAll();
 
+    }
+
+    @Override
+    public List<OrderInfo> findAllValid() throws Exception {
+        return orderMapper.findAllValid();
     }
 
     /**
@@ -243,9 +251,9 @@ public class OrderServiceImpl implements OrderService {
      * @throws Exception
      */
     @Override
-    public int changeisValid(int id) throws Exception {
+    public int isValid(int id) throws Exception {
 
-        return orderMapper.changeisValidInfo(id);
+        return orderMapper.isValid(id);
     }
 
     /**

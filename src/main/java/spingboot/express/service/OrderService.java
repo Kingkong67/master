@@ -3,6 +3,8 @@ package spingboot.express.service;
  * 信息模块接口
  */
 
+import com.github.pagehelper.PageInfo;
+import spingboot.express.commons.PageDomain;
 import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.pojo.OrderInfo;
 
@@ -22,7 +24,14 @@ public interface OrderService {
      * 查询所有用户发单信息接口
      * @return
      */
-     List<OrderInfo> findall() throws Exception;
+     List<OrderInfo> findAll() throws Exception;
+
+    /**
+     * 插叙所有有效订单借口
+     * @return
+     * @throws Exception
+     */
+    List<OrderInfo> findAllValid() throws Exception;
 
     /**
      * 用户接单接口
@@ -126,11 +135,11 @@ public interface OrderService {
      int geterEdit(HashMap<String,Object> paramMap) throws Exception;
 
     /**
-     * 改变订单的有效性，订单完成，失效之后不再展示在页面
+     * 改变订单的有效性,失效之后不再展示在页面
      * @param id
      * @return
      */
-     int changeisValid(int id) throws Exception;
+     int isValid(int id) throws Exception;
 
     /**
      * 用户长时间未点击确认，自动确认
