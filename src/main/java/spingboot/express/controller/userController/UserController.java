@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.Result;
+import spingboot.express.dto.MobilePhoneCodeDto;
+import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.pojo.User;
@@ -58,9 +60,9 @@ public class UserController {
     public String hello1() {
         try {
             System.out.println(port);
-            HashMap<String, Object> map = new HashMap<String, Object>();
-            map.put("userID", 1);
-            return userService.getBasicUser(map).get("nickname").toString();
+            UserInfoDto userInfoDto = new UserInfoDto();
+            userInfoDto.setId(1L);
+            return userService.getBasicUser(userInfoDto).getNickname().toString();
         } catch (Exception e) {
             e.printStackTrace();
             return "-111111";
@@ -70,15 +72,15 @@ public class UserController {
     /**
      * 用户密码登录接口
      *
-     * @param paramMap 传入参数存储集合
+     * @param userInfoDto 传入参数存储集合
      * @return 返回Result对象
      */
     @PostMapping(value = "/loginUserWithPwd")
-    public Result loginUser(@RequestBody HashMap<String, Object> paramMap) {
+    public Result loginUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("[用户密码登录]开始------");
         try {
-            User user = userService.loginUserWithPwd(paramMap);
+            User user = userService.loginUserWithPwd(userInfoDto);
             //SessionHandler.save(user, httpSession);
             if (user != null) {
                 result.setIsSuccess(true);
@@ -105,14 +107,14 @@ public class UserController {
     /**
      * 用户短信验证码登录接口（手机号+短信验证码登录）
      *
-     * @param paramMap 传入储存参数集合
+     * @param mobilePhoneCodeDto 传入储存参数集合
      * @return 返回Result对象
      */
     @PostMapping(value = "/loginUserWithCode")
-    public Result loginWithCode(@RequestBody HashMap<String, Object> paramMap) {
+    public Result loginWithCode(@RequestBody MobilePhoneCodeDto mobilePhoneCodeDto) {
         Result result = new Result();
         try {
-            User user = userService.loginWithCode(paramMap);
+            User user = userService.loginWithCode(mobilePhoneCodeDto);
             result.setIsSuccess(true);
             result.setData(userService.getUserBasicInfo(user));
             result.setCode(UserCommonStatus.SUCCESS.getCode());
@@ -131,18 +133,18 @@ public class UserController {
     /**
      * 用户忘记密码登录接口（使用验证码登录）
      *
-     * @param paramMap 传入储存参数集合
+     * @param mobilePhoneCodeDto 传入储存参数集合
      * @return 返回Result对象
      */
     @PostMapping(value = "/forgetUserPwd")
-    public Result forgetPwd(@RequestBody HashMap<String, Object> paramMap) {
+    public Result forgetPwd(@RequestBody MobilePhoneCodeDto mobilePhoneCodeDto) {
         Result result = new Result();
         log.info("[用户忘记密码登录]开始-----");
         try {
-            User user = userService.loginWithCode(paramMap);
+            User user = userService.loginWithCode(mobilePhoneCodeDto);
             log.info("[用户忘记密码登录] forgetPwd success!");
             result.setIsSuccess(true);
-            result.setData(userService.getAllInfo(paramMap));
+//            result.setData(userService.getAllInfo());
             result.setCode(UserCommonStatus.SUCCESS.getCode());
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             return result;
@@ -157,15 +159,15 @@ public class UserController {
     /**
      * 用户重置密码接口
      *
-     * @param paramMap 传入储存参数集合
+     * @param userInfoDto 传入储存参数集合
      * @return 返回Result对象
      */
     @RequestMapping(value = "/resetPwd", method = RequestMethod.POST)
-    public Result resetPwd(@RequestBody HashMap<String, Object> paramMap) {
+    public Result resetPwd(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("[用户重置密码]开始-----");
         try {
-            userService.resetPwd(paramMap);
+            userService.resetPwd(userInfoDto);
             log.info("[用户重置密码] resetPwd success!");
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());
             result.setIsSuccess(true);
@@ -182,17 +184,17 @@ public class UserController {
     /**
      * 用户获取验证码接口
      *
-     * @param paramMap 传入储存参数集合
+     * @param mobilePhoneCodeDto 传入储存参数集合
      * @return 返回Result对象
      */
     @PostMapping(value = "/getCode")
-    public Result getCode(@RequestBody HashMap<String, Object> paramMap) {
+    public Result getCode(@RequestBody MobilePhoneCodeDto mobilePhoneCodeDto) {
         Result result = new Result();
         log.info("[用户获取验证码]开始-----");
         try {
             log.info("[用户获取验证码] getCode success!");
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-            result.setData(userService.getCode(paramMap));
+            result.setData(userService.getCode(mobilePhoneCodeDto));
             result.setIsSuccess(true);
             result.setCode(UserCommonStatus.SUCCESS.getCode());
             return result;
@@ -207,25 +209,25 @@ public class UserController {
     /**
      * 用户注册接口
      *
-     * @param paramMap 传入储存参数集合
+     * @param userInfoDto 传入储存参数集合
      * @return 返回Result对象
      */
     @RequestMapping(value = "/addUser", method = RequestMethod.POST)
-    public Result addUser(@RequestBody HashMap<String, Object> paramMap) {
+    public Result addUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("%%%%%%%%% User sign up start %%%%%%%%%");
         try {
-            if (userService.addUser(paramMap) == UserCommonStatus.SUCCESS.getCode()) {
+            if (userService.addUser(userInfoDto) == UserCommonStatus.SUCCESS.getCode()) {
                 result.setIsSuccess(true);
                 result.setCode(UserCommonStatus.SUCCESS.getCode());
-                result.setData(userService.getAllInfo(paramMap));
+                result.setData(userService.getAllInfo(userInfoDto));
                 result.setMessage(UserCommonStatus.SUCCESS.getMessage());
                 log.info("User signs up success!");
-            } else if (userService.addUser(paramMap) == UserCommonStatus.ERROR.getCode()) {
+            } else if (userService.addUser(userInfoDto) == UserCommonStatus.ERROR.getCode()) {
                 result.setIsSuccess(false);
                 result.setCode(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorCode());
                 result.setMessage(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorMessage());
-                log.error("The Mobile Phone Number {} is sign up by Others.", paramMap.get("telephone"));
+                log.error("The Mobile Phone Number {} is sign up by Others.", userInfoDto.getTelephone());
             }
             return result;
         } catch (Exception e) {
@@ -240,14 +242,14 @@ public class UserController {
     /**
      * 用户注销接口
      *
-     * @param paramMap 传入存储参数集合
+     * @param userInfoDto 传入存储参数集合
      * @return 返回Result对象
      */
     @PostMapping(value = "/deleteUser")
-    public Result deleteUser(@RequestBody HashMap<String, Object> paramMap) {
+    public Result deleteUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         try {
-            userService.deleteUser(paramMap);
+            userService.deleteUser(userInfoDto);
             log.info("[用户注销] => deleteUser success!");
             result.setCode(UserCommonStatus.SUCCESS.getCode());
             result.setIsSuccess(true);
@@ -264,20 +266,20 @@ public class UserController {
     /**
      * 获取用户信息接口
      *
-     * @param paramMap 传入存储结果参数集合
+     * @param userInfoDto 传入存储结果参数集合
      * @return 返回Result类型
      */
     @PostMapping(value = "/getBasicInfo")
-    public Result getBasicUser(@RequestBody HashMap<String, Object> paramMap) {
+    public Result getBasicUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("[用户信息获取] 开始-----");
         try {
-            Map<String, Object> map = userService.getBasicUser(paramMap);
+            UserInfoDto userInfo = userService.getBasicUser(userInfoDto);
             result.setCode(UserCommonStatus.SUCCESS.getCode());
             log.info("[用户信息获取] getBasicUser success!");
             result.setIsSuccess(true);
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-            result.setData(map);
+            result.setData(userInfo);
             return result;
         } catch (Exception e) {
             result.setCode(ErrorCode.USER_INFO_NOTFOUND.getErrorCode());
@@ -291,15 +293,15 @@ public class UserController {
     /**
      * 用户实名制接口
      *
-     * @param paramMap 传入存储参数集合
+     * @param userInfoDto 传入存储参数集合
      * @return 返回Result接口
      */
     @RequestMapping(value = "/realUser", method = RequestMethod.POST)
-    public Result realUser(@RequestBody HashMap<String, Object> paramMap) {
+    public Result realUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("【用户实名制】 开始-----");
         try {
-            userService.realUser(paramMap);
+            userService.realUser(userInfoDto);
             result.setIsSuccess(true);
             result.setCode(UserCommonStatus.SUCCESS.getCode());
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());

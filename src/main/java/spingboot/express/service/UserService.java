@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import spingboot.express.commons.Result;
 import spingboot.express.controller.orderController.OrderController;
+import spingboot.express.dto.MobilePhoneCodeDto;
+import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.User;
 
@@ -17,28 +19,28 @@ import java.util.Map;
 
 public interface UserService {
 
-    User loginUserWithPwd(HashMap<String, Object> paramMap) throws Exception;
+    User loginUserWithPwd(UserInfoDto userInfoDto) throws Exception;
 
-    int addUser(HashMap<String, Object> paramMap) throws Exception;
+    int addUser(UserInfoDto userInfoDto) throws Exception;
 
-    User loginWithCode(HashMap<String, Object> paramMap) throws Exception;
+    User loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
-    int deleteUser(HashMap<String, Object> paramMap) throws Exception;
+    int deleteUser(UserInfoDto userInfoDto) throws Exception;
 
-    Map<String, Object> getBasicUser(HashMap<String, Object> paramMap) throws Exception;
+    UserInfoDto getBasicUser(UserInfoDto userInfoDto) throws Exception;
 
-    void realUser(HashMap<String, Object> paramMap) throws Exception;
+    void realUser(UserInfoDto userInfoDto) throws Exception;
 
-    String getCode(HashMap<String, Object> paramMap) throws Exception;
+    String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
-    User viewIfFullUserInformation(HashMap<String, Object> paramMap) throws Exception;
+    User viewIfFullUserInformation(UserInfoDto userInfoDto) throws Exception;
 
-    int resetPwd(HashMap<String, Object> paramMap) throws Exception;
+    int resetPwd(UserInfoDto userInfoDto) throws Exception;
 
-    User getAllInfo(HashMap<String, Object> paramMap) throws Exception;
+    User getAllInfo(UserInfoDto userInfoDto) throws Exception;
 
     @Deprecated
-    String getAddress(HashMap<String, Object> paramMap) throws Exception;
+    String getAddress(UserInfoDto userInfoDto) throws Exception;
 
     /**
      * 获取用户基本信息

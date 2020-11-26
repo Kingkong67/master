@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.PageDomain;
 import spingboot.express.commons.Result;
+import spingboot.express.dto.UserInfoDto;
 import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.OrderInfo;
@@ -125,7 +126,9 @@ public class OrderController {
 
         try {
             log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
-            User user = userService.viewIfFullUserInformation(paramMap);
+            //todo 将请求参数封装到UserInfoDto中
+            UserInfoDto userInfoDto = new UserInfoDto();
+            User user = userService.viewIfFullUserInformation(userInfoDto);
             if (user.getId_card() != null) {
                 log.info("【接单人开始接单】 handleOrder start");
                 orderService.userOrder(paramMap);

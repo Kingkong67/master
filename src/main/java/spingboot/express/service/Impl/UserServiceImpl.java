@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spingboot.express.commons.Result;
+import spingboot.express.dto.MobilePhoneCodeDto;
+import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.exception.ServiceException;
@@ -33,17 +35,17 @@ public class UserServiceImpl implements UserService {
     /**
      * 用户注册业务方法实现
      *
-     * @param paramMap 传入储存结果参数
+     * @param userInfoDto 传入储存结果参数
      * @return 返回注册状态
      * @throws Exception 抛出异常
      */
     @Override
-    public int addUser(HashMap<String, Object> paramMap) throws Exception {
+    public int addUser(UserInfoDto userInfoDto) throws Exception {
         User user = new User();
-        user.setNickname(String.valueOf(paramMap.get("nickname")));
-        user.setTelephone(String.valueOf(paramMap.get("telephone")));
-        user.setPassword(String.valueOf(paramMap.get("password")));
-        user.setSex(Boolean.parseBoolean(String.valueOf(paramMap.get("sex"))));
+        user.setNickname(userInfoDto.getNickname());
+        user.setTelephone(userInfoDto.getTelephone());
+        user.setPassword(userInfoDto.getPassword());
+        user.setSex(userInfoDto.getSex());
         long currentTime = System.currentTimeMillis();
 //        try {
 //            redisCacheService.saveObject("user", user);
@@ -81,16 +83,16 @@ public class UserServiceImpl implements UserService {
     /**
      * 用户登录+短信验证码（手机号码+短信验证码）
      *
-     * @param paramMap 传入储存参数集合
+     * @param mobilePhoneCodeDto 传入储存参数集合
      * @return 返回登录结果
      * @throws Exception 抛出异常
      */
     @Override
-    public User loginWithCode(HashMap<String, Object> paramMap) throws Exception {
-        String telephone = String.valueOf(paramMap.get("telephone"));
-        User isLoginUser = userMapper.getUserByTel(telephone);
+    public User loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
+        String telephoneNumber = mobilePhoneCodeDto.getMobilePhoneNumber();
+        User isLoginUser = userMapper.getUserByTel(telephoneNumber);
         if (isLoginUser != null) {
-            String code = String.valueOf(paramMap.get("code"));//判断验证码是否正确以及验证码是否有效，是否超时
+            String code = mobilePhoneCodeDto.getIdentityCode();//判断验证码是否正确以及验证码是否有效，是否超时
             if (code.equals("123456")) {
                 return isLoginUser;
             }
@@ -101,13 +103,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 用户注销方法实现
      *
-     * @param paramMap 传入存储参数集合
+     * @param userInfoDto 传入存储参数集合
      * @return 放回注销状态
      * @throws Exception 抛出异常
      */
     @Override
-    public int deleteUser(HashMap<String, Object> paramMap) throws Exception {
-        userMapper.deleteUser(Long.parseLong(String.valueOf(paramMap.get("userID"))));
+    public int deleteUser(UserInfoDto userInfoDto) throws Exception {
+        userMapper.deleteUser(userInfoDto.getId());
 //        return UserCommonStatus.getCodeByName("SUCCESS");
         return Result.SUCCESS_CODE;
     }
@@ -115,33 +117,34 @@ public class UserServiceImpl implements UserService {
     /**
      * 获取用户基本信息方法实现
      *
-     * @param paramMap 传入存储参数集合
+     * @param userInfoDto 传入存储参数集合
      * @return 放回注销状态
      * @throws Exception 抛出异常
      */
     @Override
-    public Map<String, Object> getBasicUser(HashMap<String, Object> paramMap) throws Exception {
+    public UserInfoDto getBasicUser(UserInfoDto userInfoDto) throws Exception {
         Map<String, Object> map = new HashMap<String, Object>();
-        User user = userMapper.getUserByUserID(Long.parseLong(String.valueOf(paramMap.get("userID"))));
-        map.put("nickname", user.getNickname());
-        map.put("telephone", user.getTelephone());
-        map.put("sex", user.getSex());
-        map.put("totalOrderCount", user.getTotalOrderCount());
-        map.put("successOrderCount", user.getSuccessOrderCount());
-        map.put("failOrderCount", user.getFailOrderCount());
-        return map;
+        User user = userMapper.getUserByUserID(userInfoDto.getId());
+        UserInfoDto userInfo = new UserInfoDto();
+        userInfo.setNickname(user.getNickname());
+        userInfo.setTelephone(user.getTelephone());
+        userInfo.setSex(user.getSex());
+        userInfo.setTotalOrderCount(user.getTotalOrderCount());
+        userInfo.setSuccessOrderCount(user.getSuccessOrderCount());
+        userInfo.setFailOrderCount(user.getFailOrderCount());
+        return userInfo;
     }
 
     /**
      * 用户实名制方法实现
      *
-     * @param paramMap 传入存储结果参数
+     * @param userInfoDto 传入存储结果参数
      * @return 返回User对象
      * @throws Exception 抛出异常
      */
     @Override
-    public void realUser(HashMap<String, Object> paramMap) throws Exception {
-        User user = userMapper.getUserByUserID(Long.parseLong(String.valueOf(paramMap.get("userID"))));
+    public void realUser(UserInfoDto userInfoDto) throws Exception {
+        User user = userMapper.getUserByUserID(userInfoDto.getId());
         /*user.setNickname(String.valueOf(paramMap.get("nickname")));
         user.setTelephone(String.valueOf(paramMap.get("telephone")));
         user.setPassword(String.valueOf(paramMap.get("password")));
@@ -149,24 +152,24 @@ public class UserServiceImpl implements UserService {
         user.setAddress(String.valueOf(paramMap.get("address")));
         user.setName(String.valueOf(paramMap.get("name")));*/
         //用户默认收货地址
-        user.setAddress(String.valueOf(paramMap.get("address")));
-        user.setId_card(String.valueOf(paramMap.get("id_card")));
-        user.setIdCardImage(ImageUtil.changeToStream(String.valueOf(paramMap.get("idCardImage"))));
-        user.setStuCardImage(ImageUtil.changeToStream(String.valueOf(paramMap.get("stuCardImage"))));
+        user.setAddress(userInfoDto.getAddress());
+        user.setId_card(userInfoDto.getId_card());
+        user.setIdCardImage(ImageUtil.changeToStream(userInfoDto.getIdCardImage()));
+        user.setStuCardImage(ImageUtil.changeToStream(userInfoDto.getStuCardImage()));
         userMapper.identityUserInfo(user);
     }
 
     /**
      * 手机号码获取验证码
      *
-     * @param paramMap 传入存储结果参数
+     * @param mobilePhoneCodeDto 传入存储结果参数
      * @return 返回验证码
      * @throws Exception 抛出异常
      */
     @Override
-    public String getCode(HashMap<String, Object> paramMap) throws Exception {
-        String telephone = String.valueOf(paramMap.get("telephone"));
-        boolean getCode = Boolean.parseBoolean(String.valueOf(paramMap.get("getCode")));//获取短信验证码
+    public String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
+        String telephone = mobilePhoneCodeDto.getMobilePhoneNumber();
+        boolean getCode = Boolean.parseBoolean(mobilePhoneCodeDto.getIdentityCode());//获取短信验证码
         if (telephone != null && getCode) {
             return "123456";
         } else {
@@ -179,13 +182,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 查看用户信息是否完整
      *
-     * @param paramMap
+     * @param userInfoDto
      * @return
      * @throws Exception
      */
     @Override
-    public User viewIfFullUserInformation(HashMap<String, Object> paramMap) throws Exception {
-        User user = userMapper.getUserByUserID(Long.parseLong(String.valueOf(paramMap.get("userID"))));
+    public User viewIfFullUserInformation(UserInfoDto userInfoDto) throws Exception {
+        User user = userMapper.getUserByUserID(userInfoDto.getId());
         if (user == null) {
             logger.error("【用户信息不完善】");
             return null;
@@ -197,14 +200,14 @@ public class UserServiceImpl implements UserService {
     /**
      * 用户重置密码
      *
-     * @param paramMap 传入存储结果参数
+     * @param userInfoDto 传入存储结果参数
      * @return 返回更改状态
      * @throws Exception 抛出异常
      */
     @Override
-    public int resetPwd(HashMap<String, Object> paramMap) throws Exception {
-        User user = userMapper.getUserByTel(String.valueOf(paramMap.get("telephone")));
-        user.setPassword(String.valueOf(paramMap.get("password")));
+    public int resetPwd(UserInfoDto userInfoDto) throws Exception {
+        User user = userMapper.getUserByTel(userInfoDto.getTelephone());
+        user.setPassword(user.getPassword());
         userMapper.changeUserInfo(user);
         return Result.SUCCESS_CODE;
     }
@@ -212,13 +215,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 获取用户全部信息方法实现
      *
-     * @param paramMap 传入存储结果参数
+     * @param userInfoDto 传入存储结果参数
      * @return 返回用户User信息
      * @throws Exception 抛出异常
      */
     @Override
-    public User getAllInfo(HashMap<String, Object> paramMap) throws Exception {
-        User user = userMapper.getUserByTel(String.valueOf(paramMap.get("telephone")));
+    public User getAllInfo(UserInfoDto userInfoDto) throws Exception {
+        User user = userMapper.getUserByTel(userInfoDto.getTelephone());
         if (user != null) {
             user.setStuCardImage(null);
             user.setIdCardImage(null);
@@ -230,28 +233,28 @@ public class UserServiceImpl implements UserService {
     /**
      * 获取用户取货地址方法实现
      *
-     * @param paramMap 传入储存参数集合
+     * @param userInfoDto 传入储存参数集合
      * @return 返回具体地址信息
      * @throws Exception 抛出异常
      */
     @Override
-    public String getAddress(HashMap<String, Object> paramMap) throws Exception {
-        User user = userMapper.getUserByUserID(Long.parseLong(String.valueOf(paramMap.get("userID"))));
+    public String getAddress(UserInfoDto userInfoDto) throws Exception {
+        User user = userMapper.getUserByUserID(userInfoDto.getId());
         return user.getAddress();
     }
 
     /**
      * 用户登录业务方法实现（手机号码+密码）
      *
-     * @param paramMap 传入存储参数集合
+     * @param userInfoDto 传入存储参数集合
      * @return 返回int类型
      */
     @Override
-    public User loginUserWithPwd(HashMap<String, Object> paramMap) throws Exception {
+    public User loginUserWithPwd(UserInfoDto userInfoDto) throws Exception {
         User user = new User();
-        user.setTelephone(String.valueOf(paramMap.get("telephone")));
-        user.setPassword((String.valueOf(paramMap.get("password"))));
-        User isLoginUser = userMapper.getUserByTel(String.valueOf(paramMap.get("telephone")));
+        user.setTelephone(userInfoDto.getTelephone());
+        user.setPassword(userInfoDto.getPassword());
+        User isLoginUser = userMapper.getUserByTel(userInfoDto.getTelephone());
         if (isLoginUser == null) {
             logger.error("【用户信息不存在】");
             return null;
