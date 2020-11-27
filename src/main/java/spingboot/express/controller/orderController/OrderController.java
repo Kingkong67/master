@@ -6,18 +6,22 @@ package spingboot.express.controller.orderController;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.PageDomain;
 import spingboot.express.commons.Result;
-import spingboot.express.dto.UserInfoDto;
+import spingboot.express.dto.ReceiveOrderInfo;
 import spingboot.express.dto.WriteInfoDto;
+import spingboot.express.enums.OrderCommonStatus;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.OrderInfo;
 import spingboot.express.pojo.User;
 import spingboot.express.service.OrderService;
 import spingboot.express.service.UserService;
 
+import javax.validation.Valid;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -57,10 +61,12 @@ public class OrderController {
             log.info("【发单用户填写信息开始】 writeInfo start");
             orderService.add(orderInfo);
             result.setIsSuccess(true);
+            result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
             log.info("【增加订单信息成功】 writeInfo success");
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
+            result.setMessage(OrderCommonStatus.ERROR.getMessage());
             log.error("【增加订单信息失败】 writeInfo fail", e);
             return result;
         }
@@ -81,13 +87,14 @@ public class OrderController {
             PageHelper.startPage(pageDomain.getPageNum(),pageDomain.getPageSize());
             List<OrderInfo> list = orderService.findAllValid();
             PageInfo<OrderInfo> pageInfo = new PageInfo(list);
-            System.out.println(pageInfo.getList().size());
             result.setIsSuccess(true);
+            result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
             log.info("【查询所有订单成功】 showAllOrderInfoList success");
             result.setData(pageInfo);
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
+            result.setMessage(OrderCommonStatus.ERROR.getMessage());
             log.error("【查询订单失败】 showAllOrderInfoList fail", e);
             return result;
         }
@@ -117,31 +124,36 @@ public class OrderController {
     /**
      * 接单人接单，并添加接单人的电话信息,ID
      *
-     * @param paramMap
+     * @param
      * @return
      */
-    @PostMapping("/handleOrder")
-    public Result handleOrder(@RequestBody HashMap<String, Object> paramMap) {
+    @PostMapping("/receiveOrder/{ID}")
+    public Result receiveOrder(@RequestBody ReceiveOrderInfo receiveOrderInfo, @PathVariable Integer ID) {
         Result result = new Result();
 
         try {
-            log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
-            //todo 将请求参数封装到UserInfoDto中
-            UserInfoDto userInfoDto = new UserInfoDto();
-            User user = userService.viewIfFullUserInformation(userInfoDto);
-            if (user.getId_card() != null) {
-                log.info("【接单人开始接单】 handleOrder start");
-                orderService.userOrder(paramMap);
-                result.setIsSuccess(true);
-                log.info("【接单人接单成功】 handleOrder success");
-                return result;
-            } else {
-                log.error("【接单人信息未完善】 handleOrder fail");
+            //待引入，金宝完成
+//            log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
+//            User user = userService.viewIfFullUserInformation(receiveOrderInfo);
+            log.info("【检查订单是否已被其他人接单】 chek start");
+            String ifReceived = orderService.checkIfReceived(ID);
+            if (ifReceived==null || ifReceived.equals("")) {
+              log.info("【接单人开始接单】 handleOrder start");
+              orderService.userOrder(receiveOrderInfo,ID);
+              result.setIsSuccess(true);
+              result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
+//              result.setMessage("接单人接单成功");
+              log.info("【接单人接单成功】 handleOrder success");
+            }else{
+                log.error("【接单失败，订单已被接】order has received");
                 result.setIsSuccess(false);
-                return result;
+                result.setMessage(OrderCommonStatus.FAIL.getMessage());
+//                result.setMessage("接单失败，订单已被接");
             }
+            return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
+            result.setMessage(OrderCommonStatus.ERROR.getMessage());
             log.error("【接单人接单失败】 handleOrder fail", e);
             return result;
         }

@@ -13,8 +13,8 @@
     <result column="size" jdbcType="VARCHAR" property="size"/>
     <result column="note" jdbcType="VARCHAR" property="note"/>
     <result column="dead_line" jdbcType="TIMESTAMP" property="deadLine"/>
-    <result column="receiver_id" jdbcType="INTEGER" property="receiverID"/>
-    <result column="sender_id" jdbcType="INTEGER" property="senderID"/>
+    <result column="receiver_id" jdbcType="VARCHAR" property="receiverID"/>
+    <result column="sender_id" jdbcType="VARCHAR" property="senderID"/>
     <result column="receive_tel" jdbcType="VARCHAR" property="receiveTel"/>
     <result column="order_status" jdbcType="INTEGER" property="orderStatus"/>
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
@@ -28,7 +28,7 @@
 
     <!--发单人发送快递信息-->
     <!--  允许JDBC自动生成主键，并返回  -->
-    <insert id="addInfo" parameterType="spingboot.express.pojo.OrderInfo" keyProperty="ID" useGeneratedKeys="true">
+    <insert id="add" parameterType="spingboot.express.pojo.OrderInfo" keyProperty="ID" useGeneratedKeys="true">
         insert into orderInfo
         <trim prefix="(" suffix=")" suffixOverrides=",">
               <if test="tel != null">
@@ -91,13 +91,13 @@
                 #{deadLine,jdbcType=TIMESTAMP},
             </if>
             <if test="senderID != null">
-                #{senderID,jdbcType=INTEGER},
+                #{senderID,jdbcType=VARCHAR},
             </if>
             <if test="createTime == null">
                 now(),
             </if>
             <if test="receiveTel != null">
-                #{receiveTel,jdbcType=VARCHAR}
+                #{receiveTel,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -157,27 +157,48 @@
 <!--删除数据后，使id连续-->
     <update id="update" parameterType="spingboot.express.pojo.OrderInfo">
         update orderInfo set id = id-1 where id > #{id}
-
     </update>
-<!--查询一条信息-->
-    <select id="checkInfo" parameterType="int" resultType="spingboot.express.pojo.OrderInfo">
-        select * from orderInfo where id=#{id}
+    <!--检查订单是否被其他人接单信息-->
+    <select id="checkIfReceived" parameterType="int" resultType="String">
+        select
+        receiver_id
+        from orderInfo
+        where id=#{ID}
+    </select>
+
+    <select id="check" parameterType="int" resultType="spingboot.express.pojo.OrderInfo">
+        select * from orderInfo where id = #{ID}
     </select>
 <!--删除接单用户信息-->
     <update id="deletereceiverInfo" parameterType="spingboot.express.pojo.OrderInfo">
         update orderInfo set receiverID = null,receiver_telephone = null where id = #{id}
     </update>
     <!--接单人接单,在信息中插入接单人信息-->
-    <insert id="order" parameterType="spingboot.express.pojo.OrderInfo">
-        insert into orderInfo(receiverID,receiver_telephone,orderStatusID,receivetime) values (#{receiverID},#{receiver_telephone},#{orderStatusID},now()) where id = #{id}
-    </insert>
+    <update id="userOrder" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo
+        <set>
+            <if test="receiveTel != null">
+                receive_tel =  #{receiveTel,jdbcType=VARCHAR},
+            </if>
+            <if test="receiverID != null">
+                receiver_id = #{receiverID,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveTime == null">
+                receive_time = now(),
+            </if>
+            <if test="orderStatus != null">
+                order_status = #{orderStatus,jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{ID,jdbcType=INTEGER}
+    </update>
 
     <!--改变订单状态-->
     <update id="changeInfostatus" parameterType="spingboot.express.pojo.OrderInfo">
         update orderInfo set orderStatusID = #{orderStatusID} where id = #{id}
     </update>
 <!--改变订单的有效性-->
-    <update id="isValid" parameterType="int" keyProperty="ID">
+    <update id="isValid" parameterType="int">
         update orderInfo set is_valid = 0 where id = #{ID}
     </update>
 </mapper>

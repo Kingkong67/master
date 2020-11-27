@@ -16,7 +16,7 @@ public interface OrderMapper {
      * function:发单人填写发单信息的接口
      * @param orderInfo
      */
-     int addInfo(OrderInfo orderInfo);
+     int add(OrderInfo orderInfo);
 
     /**
      * 查询所有订单接口
@@ -35,7 +35,7 @@ public interface OrderMapper {
      * @param orderInfo
      * @return
      */
-     int order(OrderInfo orderInfo);
+     int userOrder(OrderInfo orderInfo);
 
     /**
      * 查找用户的发单列表
@@ -52,11 +52,13 @@ public interface OrderMapper {
     List<OrderInfo> findgetInfo(OrderInfo orderInfo);
 
     /**
-     * 检查订单状态
-     * @param id
+     * 检查订单是否已被其他人接收
+     * @param ID
      * @return
      */
-    OrderInfo checkInfo(int id);
+    String checkIfReceived(int ID);
+
+    OrderInfo check(int ID);
 
     /**
      * 改变订单状态
@@ -115,7 +117,7 @@ public interface OrderMapper {
 
     /**
      * 改变订单有效性
-     * @param id
+     * @param id 表示数据变化影响的行数
      * @return
      */
      int isValid(int id);

@@ -1,6 +1,8 @@
 package spingboot.express.commons;
 
+
 public class Result {
+    private static final long serialVersionUID = 3915980548952800498L;
 
     public static final int ERROR_CODE = 100;
 
@@ -15,6 +17,7 @@ public class Result {
     public static final int OVER_NUMBER = 160;
 
     public static final int OVER_TIME = 170;
+
 
     int code;
 
@@ -37,19 +40,6 @@ public class Result {
         this.message = message;
         this.data = data;
         this.isSuccess = isSuccess;
-    }
-
-
-
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                ", data=" + data +
-                ", isSuccess=" + isSuccess +
-                '}';
     }
 
     public int getCode() {
@@ -82,5 +72,16 @@ public class Result {
 
     public void setIsSuccess(boolean isSuccess) {
         this.isSuccess = isSuccess;
+
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                ", isSuccess=" + isSuccess +
+                '}';
     }
 }

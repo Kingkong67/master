@@ -63,18 +63,18 @@ public class WriteInfoDto implements Serializable {
     private String size;
 
     /**
-     * 收货人ID
+     * 接单人ID
      */
-    private Integer receiverID;
+    private String receiverID;
 
     /**
      * 发货人ID
      */
-    private Integer senderID;
+    private String senderID;
     ;
 
     /**
-     * 收货人电话
+     * 接单人电话
      */
     private String receiveTel;
 

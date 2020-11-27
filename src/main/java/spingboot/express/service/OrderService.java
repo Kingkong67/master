@@ -5,6 +5,7 @@ package spingboot.express.service;
 
 import com.github.pagehelper.PageInfo;
 import spingboot.express.commons.PageDomain;
+import spingboot.express.dto.ReceiveOrderInfo;
 import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.pojo.OrderInfo;
 
@@ -35,11 +36,12 @@ public interface OrderService {
 
     /**
      * 用户接单接口
-     * @param paramMap
+     * @param receiveOrderInfo
+     * @param ID
      * @return
      * @throws Exception
      */
-     int userOrder(HashMap<String,Object> paramMap) throws Exception;
+     int userOrder(ReceiveOrderInfo receiveOrderInfo,Integer ID) throws Exception;
 
 
     /**
@@ -59,12 +61,15 @@ public interface OrderService {
      List<OrderInfo> findget(HashMap<String,Object> paramMap) throws Exception;
 
     /**
-     * 获取订单状态
-     * @param id
+     * 获取订单是否被接收
+     * @param ID
      * @return
      * @throws Exception
      */
-     OrderInfo check(int id) throws Exception;
+     String checkIfReceived(int ID) throws Exception;
+
+
+     OrderInfo check(int ID) throws Exception;
 
     /**
      * 改变订单状态
