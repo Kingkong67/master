@@ -133,8 +133,8 @@ public class OrderController {
 
         try {
             //待引入，金宝完成
-//            log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
-//            User user = userService.viewIfFullUserInformation(receiveOrderInfo);
+            log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
+            User user = userService.viewIfFullUserInformation(receiveOrderInfo);
             log.info("【检查订单是否已被其他人接单】 chek start");
             String ifReceived = orderService.checkIfReceived(ID);
             if (ifReceived==null || ifReceived.equals("")) {

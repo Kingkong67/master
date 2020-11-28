@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spingboot.express.commons.Result;
 import spingboot.express.dto.MobilePhoneCodeDto;
+import spingboot.express.dto.ReceiveOrderInfo;
 import spingboot.express.dto.UserInfoDto;
-import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.enums.ErrorCode;
+import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.exception.ServiceException;
 import spingboot.express.mapper.UserMapper;
 import spingboot.express.pojo.User;
@@ -69,6 +70,7 @@ public class UserServiceImpl implements UserService {
                 logger.info("【用户注册开始】");
                 userMapper.addUser(user);
                 logger.info("【用户注册结束】");
+
                 return UserCommonStatus.SUCCESS.getCode();
             } else {
                 logger.error("【用户手机号码已被注册】");
@@ -182,13 +184,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 查看用户信息是否完整
      *
-     * @param userInfoDto
+     * @param receiveOrderInfo
      * @return
      * @throws Exception
      */
     @Override
-    public User viewIfFullUserInformation(UserInfoDto userInfoDto) throws Exception {
-        User user = userMapper.getUserByUserID(userInfoDto.getId());
+    public User viewIfFullUserInformation(ReceiveOrderInfo receiveOrderInfo) throws Exception {
+        User user = userMapper.getUserByUserID(Long.valueOf(receiveOrderInfo.getReceiverID()));
         if (user == null) {
             logger.error("【用户信息不完善】");
             return null;

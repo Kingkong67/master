@@ -5,17 +5,10 @@ package spingboot.express.service;
  */
 
 
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import spingboot.express.commons.Result;
-import spingboot.express.controller.orderController.OrderController;
 import spingboot.express.dto.MobilePhoneCodeDto;
+import spingboot.express.dto.ReceiveOrderInfo;
 import spingboot.express.dto.UserInfoDto;
-import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.User;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public interface UserService {
 
@@ -33,7 +26,7 @@ public interface UserService {
 
     String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
-    User viewIfFullUserInformation(UserInfoDto userInfoDto) throws Exception;
+    User viewIfFullUserInformation(ReceiveOrderInfo receiveOrderInfo) throws Exception;
 
     int resetPwd(UserInfoDto userInfoDto) throws Exception;
 
