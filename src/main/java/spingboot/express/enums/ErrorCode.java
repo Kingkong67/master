@@ -28,7 +28,9 @@ public enum ErrorCode {
     GET_VALID_CODE_FAILED(5003, "用户获取验证码失败"),
     PASSWORD_RESET_FAILED(5004, "用户密码重置失败"),
     USER_IDENTITY_FAILED(5005,"用户实名制失败"),
-    USER_SIGN_IN_FAILED(5006, "用户登录失败");
+    USER_SIGN_IN_FAILED(5006, "用户登录失败"),
+
+    RETRY_SIGN_IN(6000,"用户未授权，请重新登录");
 
 
     private int errorCode;
