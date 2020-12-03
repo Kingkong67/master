@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import spingboot.express.commons.PageDomain;
 import spingboot.express.commons.Result;
 import spingboot.express.dto.WriteInfoDto;
-import spingboot.express.dto.cancelOrderDto;
+import spingboot.express.dto.CancelOrderDto;
 import spingboot.express.enums.OrderCommonStatus;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.pojo.OrderInfo;
 import spingboot.express.dto.ReceiveOrderDto;
-import spingboot.express.pojo.User;
 import spingboot.express.service.OrderService;
 import spingboot.express.service.UserService;
 
@@ -43,12 +42,12 @@ public class OrderController {
 
 
     /**
-     *@描述 发单添加详细信息
-     *@参数 [paramMap]
-     *@返回值 spingboot.express.commons.Result
-     *@创建人 wanghu
-     *@创建时间 2020/11/22 5:22 上午
-     *@修改人和其它信息
+     * @描述 发单添加详细信息
+     * @参数 [paramMap]
+     * @返回值 spingboot.express.commons.Result
+     * @创建人 wanghu
+     * @创建时间 2020/11/22 5:22 上午
+     * @修改人和其它信息
      */
     @PostMapping("/writeInfo")
     public Result writeInfo(@RequestBody OrderInfo orderInfo) {
@@ -80,7 +79,7 @@ public class OrderController {
         try {
             isValid();
             log.info("【查询所有订单列表开始】 showAllOrderInfoList start");
-            PageHelper.startPage(pageDomain.getPageNum(),pageDomain.getPageSize());
+            PageHelper.startPage(pageDomain.getPageNum(), pageDomain.getPageSize());
             List<OrderInfo> list = orderService.findAllValid();
             PageInfo<OrderInfo> pageInfo = new PageInfo<OrderInfo>(list);
             result.setIsSuccess(true);
@@ -97,14 +96,14 @@ public class OrderController {
     }
 
     /**
-     *@描述 判断订单是否还有效，筛选有效的订单
-     *@参数 []
-     *@返回值 boolean
-     *@创建人 wanghu
-     *@创建时间 2020/11/23 12:34 上午
-     *@修改人和其它信息
+     * @描述 判断订单是否还有效，筛选有效的订单
+     * @参数 []
+     * @返回值 boolean
+     * @创建人 wanghu
+     * @创建时间 2020/11/23 12:34 上午
+     * @修改人和其它信息
      */
-    public void isValid() throws Exception{
+    public void isValid() throws Exception {
         List<OrderInfo> k = orderService.findAll();
         for (int i = 0; i < k.size(); i++) {
             OrderInfo orderInfo = k.get(i);
@@ -112,7 +111,7 @@ public class OrderController {
                 log.info("订单设置为无效状态");
 //                orderService.updateOrderStatusById(orderInfo.getID());
 //                log.info("给接单用户酬金");
-                orderService.isValid(orderInfo.getID());
+                orderService.setToInvalid(orderInfo.getID());
             }
         }
     }
@@ -128,23 +127,23 @@ public class OrderController {
         Result result = new Result();
         try {
             log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
-            User user = userService.viewIfFullUserInformation(receiveOrderDto);
-            if (user == null) {
-                log.warn("【用户未实名，不能接单】viewIfFullUserInformation fail");
-                result.setMessage(OrderCommonStatus.WARN.getMessage());
-                result.setIsSuccess(false);
-                return result;
-            }
+//            User user = userService.viewIfFullUserInformation(receiveOrderDto);
+//            if (user == null) {
+//                log.warn("【用户未实名，不能接单】viewIfFullUserInformation fail");
+//                result.setMessage(OrderCommonStatus.WARN.getMessage());
+//                result.setIsSuccess(false);
+//                return result;
+//            }
             log.info("【检查订单是否已被其他人接单】 chek start");
             String ifReceived = orderService.checkIfReceived(ID);
-            if (ifReceived==null || ifReceived.equals("")) {
-              log.info("【接单人开始接单】 handleOrder start");
-              orderService.userOrder(receiveOrderDto,ID);
-              result.setIsSuccess(true);
-              result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
+            if (ifReceived == null || ifReceived.equals("")) {
+                log.info("【接单人开始接单】 handleOrder start");
+                orderService.userOrder(receiveOrderDto, ID);
+                result.setIsSuccess(true);
+                result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
 //              result.setMessage("接单人接单成功");
-              log.info("【接单人接单成功】 handleOrder success");
-            }else{
+                log.info("【接单人接单成功】 handleOrder success");
+            } else {
                 log.error("【接单失败，订单已被接】order has received");
                 result.setIsSuccess(false);
                 result.setMessage(OrderCommonStatus.FAIL.getMessage());
@@ -161,16 +160,17 @@ public class OrderController {
 
     /**
      * 展示用户所有发单信息
+     *
      * @param sendUserID
      * @param pageDomain
      * @return
      */
     @GetMapping("/showAllUserSendOrdersList")
-    public Result showAllUserSendOrdersList(@RequestParam String sendUserID,PageDomain pageDomain) {
+    public Result showAllUserSendOrdersList(@RequestParam String sendUserID, PageDomain pageDomain) {
         Result result = new Result();
         try {
             log.info("【查询用户所有发单信息开始】 showAllUserSendOrdersList start");
-            PageHelper.startPage(pageDomain.getPageNum(),pageDomain.getPageSize());
+            PageHelper.startPage(pageDomain.getPageNum(), pageDomain.getPageSize());
 //            用户发单信息
             List<OrderInfo> list = orderService.findSenderInfo(sendUserID);
             PageInfo<OrderInfo> pageInfo = new PageInfo(list);
@@ -189,16 +189,17 @@ public class OrderController {
 
     /**
      * 展示用户所有接单信息
+     *
      * @param receiverID
      * @param pageDomain
      * @return
      */
     @GetMapping("/showAllUserGetOrdersList")
-    public Result showAllUserGetOrdersList(@RequestParam String receiverID,PageDomain pageDomain) {
+    public Result showAllUserGetOrdersList(@RequestParam String receiverID, PageDomain pageDomain) {
         Result result = new Result();
         try {
             log.info("【查询用户所有接单信息开始】 showAllUserGetOrdersList start");
-            PageHelper.startPage(pageDomain.getPageNum(),pageDomain.getPageSize());
+            PageHelper.startPage(pageDomain.getPageNum(), pageDomain.getPageSize());
 //            用户接单信息
             List<OrderInfo> list = orderService.findReceivedInfo(receiverID);
             PageInfo<OrderInfo> pageInfo = new PageInfo(list);
@@ -222,16 +223,15 @@ public class OrderController {
      * @param cancelOrderDto
      * @return
      */
-    @RequestMapping("/cancelOrder")
-    public Result cancelOrder(@RequestBody cancelOrderDto cancelOrderDto) {
+    @PostMapping("/cancelOrder")
+    public Result cancelOrder(@RequestBody CancelOrderDto cancelOrderDto) {
         Result result = new Result();
         try {
             log.info("【发单人取消发单开始】 cancelOrder start");
-            int ret = orderService.checkStatus(cancelOrderDto.getID());
+            int ret = orderService.checkStatusById(cancelOrderDto.getID());
             //在接单用户确认订单之前方可取消发单
             if (ret < OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode()) {
-                orderService.deleteInfo(cancelOrderDto);
-                System.out.println(orderService.deleteInfo(cancelOrderDto));
+                orderService.deleteInfo(cancelOrderDto.getID());
 //                orderService.updatePrimary(cancelOrderDto);
                 result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
                 result.setIsSuccess(true);
@@ -257,18 +257,21 @@ public class OrderController {
      * @param writeInfoDto
      * @return 1800000 30分钟的getTime
      */
-    @RequestMapping("/cancelReceipt")
+    @PostMapping("/cancelReceipt")
     public Result cancelReceipt(@RequestBody WriteInfoDto writeInfoDto) {
         Result result = new Result();
         try {
             OrderInfo orderInfo = orderService.checkInfoById(writeInfoDto.getID());
             if (orderInfo.getOrderStatus() < OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode()) {
-                if (new Date().getTime() - orderInfo.getReceiveTime().getTime() <
-                        (orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 4) {
+                if ((orderInfo.getReceiveTime().getTime() - orderInfo.getCreateTime().getTime()) <
+                        ((orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 2)
+                        &&
+                        (new Date().getTime() - orderInfo.getReceiveTime().getTime())<
+                                (orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 4) {
 
                     log.info("【接单人取消接单开始】 cancelReceipt start");
-                    orderService.deleteReceiver(writeInfoDto);
-                    orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.NOT_RECEIVED.getCode());
+                    orderService.deleteReceiver(writeInfoDto.getID());
+                    orderService.changeOrderStatus(writeInfoDto.getID(), OrderTypeEnum.NOT_RECEIVED.getCode());
                     result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
                     result.setIsSuccess(true);
                     log.info("【接单人取消接单成功】 cancelReceipt success");
@@ -281,17 +284,18 @@ public class OrderController {
                         return result;
                     } else {
                         log.info("【接单人取消接单开始】 cancelReceipt start");
-                        orderService.deleteReceiver(writeInfoDto);
-                        orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.NOT_RECEIVED.getCode());
+                        orderService.deleteReceiver(writeInfoDto.getID());
+                        orderService.changeOrderStatus(writeInfoDto.getID(), OrderTypeEnum.NOT_RECEIVED.getCode());
                         log.info("【惩罚50%】");
                         result.setIsSuccess(true);
+                        result.setMessage("惩罚50%用户给的跑腿费");
                         log.info("【接单人取消接单成功】 cancelReceipt success");
                         return result;
                     }
                 }
             } else {
                 result.setIsSuccess(false);
-                result.setMessage("接单用户已确认拿到订单，无法取消接单");
+                result.setMessage("您已确认拿到订单，无法取消接单");
                 log.info("【接单人取消接单失败】 cancelReceipt fail");
                 return result;
             }
@@ -305,44 +309,47 @@ public class OrderController {
     }
 
     /**
-     *  接单用户拿到订单
-     * @param writeInfoDto
+     * 接单用户拿到订单
+     *
+     * @param ID
      * @return
      */
-    @RequestMapping("/getOrder")
-    public Result getOrder(@RequestBody WriteInfoDto writeInfoDto) {
+    @PostMapping("/getOrder/{ID}")
+    public Result getOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【接单人拿到订单开始】 getOrder start");
-            orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode());
-            orderService.isValid(writeInfoDto.getID());
+            orderService.changeOrderStatus(ID, OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode());
+            orderService.setToInvalid(ID);
+            result.setMessage("接单用户拿到订单成功");
             result.setIsSuccess(true);
             log.info("【接单人拿到订单成功】 getOrder success");
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
+            result.setMessage("接单用户拿到订单失败");
             log.error("【接单人拿到订单失败】 getOrder fail");
             return result;
         }
     }
 
     /**
-     * 接单用户点击完成订单
+     * 接单用户送达订单，点击完成订单,
      *
      * @return
      */
-    @RequestMapping("/completeOrder")
-    public Result completeOrder(@RequestBody WriteInfoDto writeInfoDto) {
+    @GetMapping("/completeOrder/{ID}")
+    public Result completeOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【接单人完成订单开始】 completeOrder start");
-
-            orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getCode());
+            orderService.changeOrderStatus(ID, OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getCode());
             result.setMessage(OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getName());
             result.setIsSuccess(true);
             log.info("【接单人完成订单成功】 completeOrder success");
             return result;
         } catch (Exception e) {
+            result.setMessage(e.getMessage());
             result.setIsSuccess(false);
             log.error("【接单人完成订单失败】 completeOrder fail", e);
             return result;
@@ -352,41 +359,44 @@ public class OrderController {
     /**
      * 查询单个信息详情
      *
-     * @param paramMap
+     * @param ID
      * @return
      */
-    @RequestMapping("/showUserOrderInfo")
-    public Result showUserOrderInfo(@RequestBody HashMap<String, Object> paramMap) {
+    @GetMapping("/showUserOrderInfo/{ID}")
+    public Result showUserOrderInfo(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【查询单个订单详情开始】 showUserOrderInfo start");
-            List<OrderInfo> list = orderService.querySingleOrder(paramMap);
+            List<OrderInfo> list = orderService.querySingleOrder(ID);
             result.setData(list);
+            result.setMessage("查询单个订单成功");
             result.setIsSuccess(true);
             log.info("【查询单个订单详情成功】 showUserOrderInfo success");
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
+            result.setMessage(e.getMessage());
             log.error("【查询单个订单详情失败】 showUserOrderInfo fail", e);
             return result;
         }
     }
 
     /**
-     * 删除某条发单信息
+     * 发单人取消发单删除某条发单信息
      *
-     * @param cancelOrderDto
+     * @param ID
      * @return
      */
-    @RequestMapping("/deleteSendOrder")
-    public Result deleteSendOrder(@RequestBody cancelOrderDto cancelOrderDto) {
+    @GetMapping("/deleteSendOrder/{ID}")
+    public Result deleteSendOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
-            int ret = orderService.checkStatus(cancelOrderDto.getID());
-            if (ret > OrderTypeEnum.COMPLETED.getCode()) {
+            int ret = orderService.checkStatusById(ID);
+            if (ret >= OrderTypeEnum.COMPLETED.getCode()) {
                 log.info("【删除发单信息开始】 deleteSendOrder start");
-                orderService.deleteInfo(cancelOrderDto);
+                orderService.deleteInfo(ID);
                 result.setIsSuccess(true);
+                result.setMessage("删除订单完成");
                 log.info("【删除发单信息成功】 deleteSendOrder success");
                 return result;
             } else {
@@ -402,19 +412,23 @@ public class OrderController {
     }
 
     /**
+     * 发单人删除某条发单信息，与取消发单不同，只是删除订单中的发单人的信息
+     */
+
+    /**
      * 删除某条接单信息
      *
-     * @param writeInfoDto
+     * @param ID
      * @return
      */
-    @RequestMapping("/deleteGetOrder")
-    public Result deleteGetOrder(@RequestBody WriteInfoDto writeInfoDto) {
+    @GetMapping("/deleteGetOrder/{ID}")
+    public Result deleteGetOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
-            int ret = orderService.checkStatus(writeInfoDto.getID());
-            if (ret > OrderTypeEnum.COMPLETED.getCode()) {
+            int ret = orderService.checkStatusById(ID);
+            if (ret >= OrderTypeEnum.COMPLETED.getCode()) {
                 log.info("【删除接单信息开始】 deleteGetOrder start");
-                orderService.deleteReceiver(writeInfoDto);
+                orderService.deleteReceiver(ID);
                 result.setIsSuccess(true);
                 log.info("【删除接单信息成功】 deleteGetOrder success");
                 return result;
@@ -433,15 +447,16 @@ public class OrderController {
     /**
      * 发单人编辑某条订单信息
      *
-     * @param paramMap
+     * @param writeInfoDto
      * @return
      */
-    @RequestMapping("/senderEditOrder")
-    public Result senderEditOrder(@RequestBody HashMap<String, Object> paramMap) {
+    @PostMapping("/senderEditOrder")
+    public Result senderEditOrder(@RequestBody WriteInfoDto writeInfoDto) {
         Result result = new Result();
         try {
             log.info("【编辑订单信息开始】 editOrder start");
-            orderService.senderEdit(paramMap);
+            orderService.senderEditInfo(writeInfoDto);
+            result.setMessage("编辑订单成功");
             result.setIsSuccess(true);
             log.info("【编辑订单信息成功】 editOrder success");
             return result;
@@ -455,17 +470,18 @@ public class OrderController {
     /**
      * 发单人确认收到订单
      *
-     * @param writeInfoDto
+     * @param ID
      * @return
      */
-    @RequestMapping("/confirmReceipt")
-    public Result confirmReceipt(@RequestBody WriteInfoDto writeInfoDto) {
+    @RequestMapping("/senderConfirmReceipt/{ID}")
+    public Result senderConfirmReceipt(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【发单人确认订单开始】 confirmReceipt start");
-            orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.CONFIRMED.getCode());
-            orderService.isValid(writeInfoDto.getID());
+            orderService.changeOrderStatus(ID, OrderTypeEnum.CONFIRMED.getCode());
+            orderService.setToInvalid(ID);
             result.setIsSuccess(true);
+            result.setMessage("用户确认收到订单成功");
             log.info("【发单人确认订单成功】 confirmReceipt success");
             log.info("【平台付费给用户】");
             return result;
@@ -479,24 +495,25 @@ public class OrderController {
     /**
      * 发单人点击未收到订单
      *
-     * @param writeInfoDto
+     * @param ID
      * @return
      */
-    @RequestMapping("/noOrdersReceived")
-    public Result noOrdersReceived(@RequestBody WriteInfoDto writeInfoDto) {
+    @RequestMapping("/senderNotReceived/{ID}")
+    public Result senderNotReceived(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【发单人点击未确认订单开始】 noOrdersReceived start");
-            int ret = orderService.checkStatus(writeInfoDto.getID());
-
+            int ret = orderService.checkStatusById(ID);
             if (ret == OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getCode()) {
                 log.info("【平台介入调查】");
+                result.setMessage("平台介入调查，存在不可解决的问题");
                 result.setIsSuccess(false);
                 return result;
             } else {
-                orderService.changeOrderStatus(writeInfoDto, OrderTypeEnum.NOT_CONFIRMED.getCode());
-                orderService.isValid(writeInfoDto.getID());
+                orderService.changeOrderStatus(ID, OrderTypeEnum.NOT_CONFIRMED.getCode());
+                orderService.setToInvalid(ID);
                 result.setIsSuccess(true);
+                result.setMessage("用户未收到订单？？？");
                 log.info("【发单人点击未确认订单成功】 noOrdersReceived success");
                 return result;
             }

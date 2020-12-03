@@ -12,14 +12,14 @@ import java.io.Serializable;
  * @throws:
  */
 @Data
-public class cancelOrderDto implements Serializable {
+public class CancelOrderDto implements Serializable {
 
     private static final long serialVersionUID = -1155073564091992100L;
 
     /**
      * 订单ID
      */
-    private Integer ID;
+    public Integer ID;
 
     /**
      * 发货人ID

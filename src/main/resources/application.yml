@@ -26,7 +26,7 @@ mybatis:
   mapperLocations: classpath:mybatis/**/*Mapper.xml
   configLocation: classpath:mybatis/mybatis-config.xml
   #实体扫描，多个package用逗号或者分号分隔
-  typeAliasesPackage: spingboot.express.pojo,spingboot.express.dto
+  typeAliasesPackage: spingboot.express.pojo;spingboot.express.dto
   global-config:
     #是否控制台 print mybatis-plus 的 LOGO
     banner: true

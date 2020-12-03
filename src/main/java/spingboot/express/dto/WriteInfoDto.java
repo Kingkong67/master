@@ -20,7 +20,7 @@ public class WriteInfoDto implements Serializable {
     /**
      * 订单ID
      */
-    private Integer ID;
+    public Integer ID;
 
     /**
      * 订单接收电话
