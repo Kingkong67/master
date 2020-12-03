@@ -114,7 +114,7 @@
     <select id="querySingleInfoOrder" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
         select  * from info where id = #{id}
     </select>
-    <!--查询所有信息-->
+    <!--查询所有信息的截止时间，来判断订单是否过期-->
     <select id="findAll" resultMap="BaseResultMap">
         select
         id,dead_line
@@ -129,17 +129,27 @@
         where
         is_valid = 1
     </select>
-<!--查询所有发单信息-->
-    <select id="findsendInfo" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
-        select * from orderInfo where sendUserID = #{sendUserID}
+
+    <!--查询所有发单信息-->
+    <select id="findSenderInfo" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Order_Info"/>
+        from orderInfo
+        where sender_id = #{sendUserID}
     </select>
-<!--查询所有接单信息-->
-    <select id="findgetInfo" parameterType="spingboot.express.pojo.OrderInfo" resultType="spingboot.express.pojo.OrderInfo">
-        select * from orderInfo where receiver_telephone = #{receiver_telephone}
+
+    <!--查询所有接单信息-->
+    <select id="findReceivedInfo" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Order_Info"/>
+        from orderInfo
+        where receiver_id = #{receiverID}
     </select>
-<!--删除订单主人信息-->
-    <delete id="deletesenderInfo" parameterType="spingboot.express.pojo.OrderInfo">
-        delete sendUserID from orderInfo where id = #{id} and id >20
+    <!--发单人取消发单-->
+    <delete id="deleteInfo" parameterType="spingboot.express.dto.cancelOrderDto">
+        delete
+        from orderInfo
+        where id = #{ID}
     </delete>
     <!--订单过期，置为无效-->
     <update id="updateOrderStatusById" parameterType="int">
@@ -150,11 +160,11 @@
       where
       id = #{id}
     </update>
-<!--使新插入数据库的数据从最大数字+1开始-->
+    <!--使新插入数据库的数据从最大数字+1开始-->
     <update id="alterinfo" parameterType="int">
         alter table orderInfo auto_increment = #{i}
     </update>
-<!--删除数据后，使id连续-->
+    <!--删除数据后，使id连续-->
     <update id="update" parameterType="spingboot.express.pojo.OrderInfo">
         update orderInfo set id = id-1 where id > #{id}
     </update>
@@ -165,13 +175,19 @@
         from orderInfo
         where id=#{ID}
     </select>
-
-    <select id="check" parameterType="int" resultType="spingboot.express.pojo.OrderInfo">
-        select * from orderInfo where id = #{ID}
+    <!--  根据订单ID检查订单状态  -->
+    <select id="checkStatus" parameterType="int" resultType="int">
+        select order_status from orderInfo where id = #{orderInfoID}
     </select>
-<!--删除接单用户信息-->
-    <update id="deletereceiverInfo" parameterType="spingboot.express.pojo.OrderInfo">
-        update orderInfo set receiverID = null,receiver_telephone = null where id = #{id}
+    <!--根据订单ID检查订单的所有信息-->
+    <select id="checkInfoById" parameterType="int" resultMap="BaseResultMap">
+        select *
+        from orderInfo
+        where id = #{ID}
+    </select>
+    <!--接单用户取消接单，删除接单用户信息-->
+    <update id="deleteReceiver" parameterType="spingboot.express.dto.WriteInfoDto">
+        update orderInfo set receiverID = null,receiver_telephone = null where id = #{ID}
     </update>
     <!--接单人接单,在信息中插入接单人信息-->
     <update id="userOrder" parameterType="spingboot.express.pojo.OrderInfo">
@@ -194,8 +210,8 @@
     </update>
 
     <!--改变订单状态-->
-    <update id="changeInfostatus" parameterType="spingboot.express.pojo.OrderInfo">
-        update orderInfo set orderStatusID = #{orderStatusID} where id = #{id}
+    <update id="changeOrderStatus" parameterType="spingboot.express.pojo.OrderInfo">
+        update orderInfo set order_status = #{orderStatus} where id = #{ID}
     </update>
 <!--改变订单的有效性-->
     <update id="isValid" parameterType="int">

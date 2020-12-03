@@ -13,7 +13,9 @@ public enum OrderCommonStatus {
 
     ERROR(500,"请求失败，服务器错误"),
 
-    FAIL(300,"请求过时，请重新刷新页面");
+    FAIL(300,"请求过时，请重新刷新页面"),
+
+    WARN(400,"用户未实名，请求失败");
 
     int code;
 

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import spingboot.express.dto.ReceiveOrderInfo;
+import spingboot.express.dto.ReceiveOrderDto;
+import spingboot.express.dto.WriteInfoDto;
+import spingboot.express.dto.cancelOrderDto;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.mapper.OrderMapper;
 import spingboot.express.pojo.OrderInfo;
@@ -17,7 +19,6 @@ import spingboot.express.service.OrderService;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.*;
 
 @Service
@@ -56,29 +57,27 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 查找用户发过的所有订单接口
      *
-     * @param paramMap
+     * @param sendUserID
      * @return
      * @throws Exception
      */
     @Override
-    public List<OrderInfo> findsend(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setSenderID(paramMap.get("sendUserID").toString());
-        return orderMapper.findsendInfo(orderInfo);
+    public List<OrderInfo> findSenderInfo(String sendUserID) throws Exception {
+
+        return orderMapper.findSenderInfo(sendUserID);
     }
 
     /**
      * 查找用户接过的所有订单接口
      *
-     * @param paramMap
+     * @param receiverID
      * @return
      * @throws Exception
      */
     @Override
-    public List<OrderInfo> findget(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setReceiverID(paramMap.get("userID").toString());
-        return orderMapper.findgetInfo(orderInfo);
+    public List<OrderInfo> findReceivedInfo(String receiverID) throws Exception {
+
+        return orderMapper.findReceivedInfo(receiverID);
     }
 
     /**
@@ -101,17 +100,17 @@ public class OrderServiceImpl implements OrderService {
 
     /**
      * 用户开始接单
-     * @param receiveOrderInfo
+     * @param receiveOrderDto
      * @param ID
      * @return
      * @throws Exception
      */
     @Override
-    public int userOrder(ReceiveOrderInfo receiveOrderInfo,Integer ID) throws Exception {
+    public int userOrder(ReceiveOrderDto receiveOrderDto, Integer ID) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setID(ID);
-        orderInfo.setReceiverID(receiveOrderInfo.getReceiverID());
-        orderInfo.setReceiveTel(receiveOrderInfo.getReceiveTel());
+        orderInfo.setReceiverID(receiveOrderDto.getReceiverID());
+        orderInfo.setReceiveTel(receiveOrderDto.getReceiveTel());
         orderInfo.setOrderStatus(OrderTypeEnum.RECEIVED.getCode());
         orderMapper.userOrder(orderInfo);
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -141,24 +140,29 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public OrderInfo check(int ID) throws Exception {
-        return orderMapper.check(ID);
+    public OrderInfo checkInfoById(int ID) throws Exception {
+        return orderMapper.checkInfoById(ID);
+    }
+
+    @Override
+    public int checkStatus(int ID) throws Exception {
+        return orderMapper.checkStatus(ID);
     }
 
     /**
      * 发单用户取消发单，删除订单
      *
-     * @param paramMap
+     * @param cancelOrderDto
      * @return
      */
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 //    @Cacheable(value="common",key="#paramMap")
-    public int deletesender(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setSenderID(paramMap.get("SendUserID").toString());
-        return orderMapper.deletesenderInfo(orderInfo);
+    public int deleteInfo(cancelOrderDto cancelOrderDto) throws Exception {
+//        OrderInfo orderInfo = new OrderInfo();
+//        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+//        orderInfo.setSenderID(paramMap.get("SendUserID").toString());
+        return orderMapper.deleteInfo(cancelOrderDto);
     }
 
     /**
@@ -169,34 +173,34 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public int updateinfo(HashMap<String, Object> paramMap) throws Exception {
-        return orderMapper.update(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+    public int updatePrimary(HashMap<String, Object> paramMap) throws Exception {
+        return orderMapper.updatePrimary(Integer.valueOf(paramMap.get("orderInfoID").toString()));
     }
 
     /**
      * 删除接单用户id,电话
      *
-     * @param paramMap
+     * @param writeInfoDto
      */
     @Override
-    public void deletereceiver(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderMapper.deletereceiverInfo(orderInfo);
+    public void deleteReceiver(WriteInfoDto writeInfoDto) throws Exception {
+
+        orderMapper.deleteReceiver(writeInfoDto);
     }
 
     /**
      * 改变订单状态
-     *
-     * @param paramMap
+     * @param writeInfoDto
+     * @param orderStatusID
      * @return
+     * @throws Exception
      */
     @Override
-    public int changestatus(HashMap<String, Object> paramMap, int orderStatusID) throws Exception {
+    public int changeOrderStatus(WriteInfoDto writeInfoDto, int orderStatusID) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
+        orderInfo.setID(writeInfoDto.getID());
         orderInfo.setOrderStatus(orderStatusID);
-        return orderMapper.changeInfostatus(orderInfo);
+        return orderMapper.changeOrderStatus(orderInfo);
     }
 
     /**

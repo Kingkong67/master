@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import spingboot.express.commons.Result;
 import spingboot.express.dto.MobilePhoneCodeDto;
-import spingboot.express.dto.ReceiveOrderInfo;
+import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.enums.UserCommonStatus;
@@ -184,13 +184,13 @@ public class UserServiceImpl implements UserService {
     /**
      * 查看用户信息是否完整
      *
-     * @param receiveOrderInfo
+     * @param receiveOrderDto
      * @return
      * @throws Exception
      */
     @Override
-    public User viewIfFullUserInformation(ReceiveOrderInfo receiveOrderInfo) throws Exception {
-        User user = userMapper.getUserByUserID(Long.valueOf(receiveOrderInfo.getReceiverID()));
+    public User viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception {
+        User user = userMapper.getUserByUserID(Long.valueOf(receiveOrderDto.getReceiverID()));
         if (user == null) {
             logger.error("【用户信息不完善】");
             return null;

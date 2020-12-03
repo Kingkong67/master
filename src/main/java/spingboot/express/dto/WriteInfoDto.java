@@ -20,7 +20,7 @@ public class WriteInfoDto implements Serializable {
     /**
      * 订单ID
      */
-    private Integer id;
+    private Integer ID;
 
     /**
      * 订单接收电话
@@ -48,7 +48,7 @@ public class WriteInfoDto implements Serializable {
     private String sex;
 
     /**
-     * 额外补充
+     *额外补充
      */
     private String note;
 
@@ -70,8 +70,7 @@ public class WriteInfoDto implements Serializable {
     /**
      * 发货人ID
      */
-    private String senderID;
-    ;
+    private String senderID;;
 
     /**
      * 接单人电话
@@ -99,9 +98,9 @@ public class WriteInfoDto implements Serializable {
     private Date receiveTime;
 
     @Override
-    public String toString() {
-        return "电话：" + tel + "  取件地址：" + shipAddress + "  送货地址：" + sendAddress + "  工资：" + money + "  备注：" + note
-                + "型号：" + size + "截止时间：" + deadLine + "接单人电话：" + receiveTel + "接单人ID:" + receiverID
-                + "订单状态ID:" + orderStatus + "发单人ID:" + senderID + "创建时间：" + createTime + "是否有效：" + isValid;
+    public String toString(){
+        return "电话："+tel+"  取件地址："+shipAddress+"  送货地址："+sendAddress+"  工资："+money+"  备注："+note+" 电话:"+tel
+                +"型号："+size+"截止时间："+deadLine+"接单人电话："+receiveTel+"接单人ID:"+receiverID
+                +"订单状态ID:"+orderStatus+"发单人ID:"+senderID+"创建时间："+createTime+"是否有效："+isValid;
     }
 }

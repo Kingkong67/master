@@ -6,7 +6,7 @@ package spingboot.express.service;
 
 
 import spingboot.express.dto.MobilePhoneCodeDto;
-import spingboot.express.dto.ReceiveOrderInfo;
+import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.UserInfoDto;
 import spingboot.express.pojo.User;
 
@@ -26,7 +26,7 @@ public interface UserService {
 
     String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
-    User viewIfFullUserInformation(ReceiveOrderInfo receiveOrderInfo) throws Exception;
+    User viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception;
 
     int resetPwd(UserInfoDto userInfoDto) throws Exception;
 

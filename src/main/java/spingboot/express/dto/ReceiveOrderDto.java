@@ -14,7 +14,7 @@ import java.io.Serializable;
  */
 
 @Data
-public class ReceiveOrderInfo implements Serializable {
+public class ReceiveOrderDto implements Serializable {
     private static final long serialVersionUID = 1709811267717114761L;
 
 //    @NotEmpty(message = "接单人ID不为空")

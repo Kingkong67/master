@@ -5,6 +5,8 @@ package spingboot.express.mapper;
 
 
 import org.springframework.stereotype.Repository;
+import spingboot.express.dto.WriteInfoDto;
+import spingboot.express.dto.cancelOrderDto;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.List;
@@ -25,7 +27,7 @@ public interface OrderMapper {
      List<OrderInfo> findAll();
 
     /**
-     * 查询所有有效订单借口
+     * 查询所有有效订单接口
      * @return
      */
     List<OrderInfo> findAllValid();
@@ -39,17 +41,17 @@ public interface OrderMapper {
 
     /**
      * 查找用户的发单列表
-     * @param orderInfo
+     * @param sendUserID
      * @return
      */
-    List<OrderInfo> findsendInfo(OrderInfo orderInfo);
+    List<OrderInfo> findSenderInfo(String sendUserID);
 
     /**
      * 查找用户的接单列表
-     * @param orderInfo
+     * @param sendUserID
      * @return
      */
-    List<OrderInfo> findgetInfo(OrderInfo orderInfo);
+    List<OrderInfo> findReceivedInfo(String sendUserID);
 
     /**
      * 检查订单是否已被其他人接收
@@ -58,14 +60,26 @@ public interface OrderMapper {
      */
     String checkIfReceived(int ID);
 
-    OrderInfo check(int ID);
+    /**
+     * 检查订单是否处于未被别人接收状态
+     * @param ID
+     * @return
+     */
+    int checkStatus(int ID);
+
+    /**
+     * 根据订单ID查询订单的所有信息
+     * @param ID
+     * @return
+     */
+    OrderInfo checkInfoById(int ID);
 
     /**
      * 改变订单状态
      * @param orderInfo
      * @return
      */
-    int changeInfostatus(OrderInfo orderInfo);
+    int changeOrderStatus(OrderInfo orderInfo);
 
     /**
      * 查询某条订单
@@ -76,17 +90,17 @@ public interface OrderMapper {
 
     /**
      * 发单用户取消发单，删除订单
-     * @param orderInfo
+     * @param cancelOrderDto
      * @return
      */
-     int deletesenderInfo(OrderInfo orderInfo);
+     int deleteInfo(cancelOrderDto cancelOrderDto);
 
     /**
      * 更新操作，在删除主键后使主键连续
      * @param id
      * @return
      */
-     int update(int id);
+     int updatePrimary(int id);
 
     /**
      * 在添加主键时使主键连续
@@ -97,9 +111,9 @@ public interface OrderMapper {
 
     /**
      * 接单用户取消接单,删除接单记录
-     * @param orderInfo
+     * @param writeInfoDto
      */
-     void deletereceiverInfo(OrderInfo orderInfo);
+     void deleteReceiver(WriteInfoDto writeInfoDto);
 
     /**
      *发单人编辑订单

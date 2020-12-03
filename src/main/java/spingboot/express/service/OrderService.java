@@ -3,10 +3,9 @@ package spingboot.express.service;
  * 信息模块接口
  */
 
-import com.github.pagehelper.PageInfo;
-import spingboot.express.commons.PageDomain;
-import spingboot.express.dto.ReceiveOrderInfo;
+import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.WriteInfoDto;
+import spingboot.express.dto.cancelOrderDto;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.HashMap;
@@ -36,29 +35,29 @@ public interface OrderService {
 
     /**
      * 用户接单接口
-     * @param receiveOrderInfo
+     * @param receiveOrderDto
      * @param ID
      * @return
      * @throws Exception
      */
-     int userOrder(ReceiveOrderInfo receiveOrderInfo,Integer ID) throws Exception;
+     int userOrder(ReceiveOrderDto receiveOrderDto, Integer ID) throws Exception;
 
 
     /**
      * 查找用户发过的所有订单接口
-     * @param paramMap
+     * @param sendUserID
      * @return
      * @throws Exception
      */
-     List<OrderInfo> findsend(HashMap<String,Object> paramMap) throws Exception;
+     List<OrderInfo> findSenderInfo(String sendUserID) throws Exception;
 
     /**
      * 查找用户接过的所有订单接口
-     * @param paramMap
+     * @param receiverID
      * @return
      * @throws Exception
      */
-     List<OrderInfo> findget(HashMap<String,Object> paramMap) throws Exception;
+     List<OrderInfo> findReceivedInfo(String receiverID) throws Exception;
 
     /**
      * 获取订单是否被接收
@@ -68,38 +67,39 @@ public interface OrderService {
      */
      String checkIfReceived(int ID) throws Exception;
 
+     OrderInfo checkInfoById(int ID) throws Exception;
 
-     OrderInfo check(int ID) throws Exception;
 
     /**
-     * 改变订单状态
-     * @param id
+     * 检查订单的状态
+     * @param ID
      * @return
      * @throws Exception
      */
+     int checkStatus(int ID) throws Exception;
 
     /**
      * 改变订单状态
-     * @param paramMap
+     * @param writeInfoDto
+     * @param orderStatusID
      * @return
      * @throws Exception
      */
-     int changestatus(HashMap<String,Object> paramMap,int orderStatusID) throws Exception;
-
+     int changeOrderStatus(WriteInfoDto writeInfoDto,int orderStatusID) throws Exception;
 
     /**
-     * 删除订单
-     * @param paramMap
+     * 删除某条订单
+     * @param cancelOrderDto
      * @return
      */
-     int deletesender(HashMap<String,Object> paramMap) throws Exception;
+     int deleteInfo(cancelOrderDto cancelOrderDto) throws Exception;
 
     /**
      * 更新操作，使数据库主键连续接口
      * @param paramMap
      * @return
      */
-     int updateinfo(HashMap<String,Object> paramMap) throws Exception;
+     int updatePrimary(HashMap<String,Object> paramMap) throws Exception;
 
 
 //     orderInfo check(HashMap<String,Object> paramMap);
@@ -113,9 +113,9 @@ public interface OrderService {
 
     /**
      * 用户取消接单接口
-     * @param paramMap
+     * @param writeInfoDto
      */
-     void deletereceiver(HashMap<String,Object> paramMap) throws Exception;
+     void deleteReceiver(WriteInfoDto writeInfoDto) throws Exception;
 
     /**
      * 查询单个信息
