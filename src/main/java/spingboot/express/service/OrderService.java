@@ -5,7 +5,7 @@ package spingboot.express.service;
 
 import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.WriteInfoDto;
-import spingboot.express.dto.cancelOrderDto;
+import spingboot.express.dto.CancelOrderDto;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.HashMap;
@@ -67,32 +67,38 @@ public interface OrderService {
      */
      String checkIfReceived(int ID) throws Exception;
 
-     OrderInfo checkInfoById(int ID) throws Exception;
-
-
     /**
-     * 检查订单的状态
+     * 根据订单ID检查订单的所有信息
      * @param ID
      * @return
      * @throws Exception
      */
-     int checkStatus(int ID) throws Exception;
+     OrderInfo checkInfoById(int ID) throws Exception;
+
+
+    /**
+     * 根据订单ID检查订单的状态
+     * @param ID
+     * @return
+     * @throws Exception
+     */
+     int checkStatusById(int ID) throws Exception;
 
     /**
      * 改变订单状态
-     * @param writeInfoDto
+     * @param ID
      * @param orderStatusID
      * @return
      * @throws Exception
      */
-     int changeOrderStatus(WriteInfoDto writeInfoDto,int orderStatusID) throws Exception;
+     int changeOrderStatus(int ID,int orderStatusID) throws Exception;
 
     /**
      * 删除某条订单
-     * @param cancelOrderDto
+     * @param ID
      * @return
      */
-     int deleteInfo(cancelOrderDto cancelOrderDto) throws Exception;
+     int deleteInfo(int ID) throws Exception;
 
     /**
      * 更新操作，使数据库主键连续接口
@@ -113,23 +119,23 @@ public interface OrderService {
 
     /**
      * 用户取消接单接口
-     * @param writeInfoDto
+     * @param ID
      */
-     void deleteReceiver(WriteInfoDto writeInfoDto) throws Exception;
+     void deleteReceiver(int ID) throws Exception;
 
     /**
      * 查询单个信息
-     * @param paramMap
+     * @param ID
      * @return
      */
-     List<OrderInfo> querySingleOrder(HashMap<String,Object> paramMap) throws Exception;
+     List<OrderInfo> querySingleOrder(int ID) throws Exception;
 
     /**
      * 发单人编辑单个信息
-     * @param paramMap
+     * @param writeInfoDto
      * @return
      */
-     int senderEdit(HashMap<String,Object> paramMap) throws Exception;
+     int senderEditInfo(WriteInfoDto writeInfoDto) throws Exception;
 
     /**
      * 接单人编辑单个信息
@@ -144,7 +150,7 @@ public interface OrderService {
      * @param id
      * @return
      */
-     int isValid(int id) throws Exception;
+     int setToInvalid(int id) throws Exception;
 
     /**
      * 用户长时间未点击确认，自动确认

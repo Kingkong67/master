@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.WriteInfoDto;
-import spingboot.express.dto.cancelOrderDto;
+import spingboot.express.dto.CancelOrderDto;
 import spingboot.express.enums.OrderTypeEnum;
 import spingboot.express.mapper.OrderMapper;
 import spingboot.express.pojo.OrderInfo;
@@ -93,6 +93,11 @@ public class OrderServiceImpl implements OrderService {
 
     }
 
+    /**
+     * 插叙所有有效订单借口
+     * @return
+     * @throws Exception
+     */
     @Override
     public List<OrderInfo> findAllValid() throws Exception {
         return orderMapper.findAllValid();
@@ -124,8 +129,6 @@ public class OrderServiceImpl implements OrderService {
         return futureTask.get();
     }
 
-
-
     /**
      * 检查订单状态
      *
@@ -139,30 +142,42 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.checkIfReceived(ID);
     }
 
+    /**
+     * 根据订单ID检查订单的所有信息
+     * @param ID
+     * @return
+     * @throws Exception
+     */
     @Override
     public OrderInfo checkInfoById(int ID) throws Exception {
         return orderMapper.checkInfoById(ID);
     }
 
+    /**
+     * 根据订单ID检查订单的状态
+     * @param ID
+     * @return
+     * @throws Exception
+     */
     @Override
-    public int checkStatus(int ID) throws Exception {
-        return orderMapper.checkStatus(ID);
+    public int checkStatusById(int ID) throws Exception {
+        return orderMapper.checkStatusById(ID);
     }
 
     /**
      * 发单用户取消发单，删除订单
      *
-     * @param cancelOrderDto
+     * @param ID
      * @return
      */
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
 //    @Cacheable(value="common",key="#paramMap")
-    public int deleteInfo(cancelOrderDto cancelOrderDto) throws Exception {
+    public int deleteInfo(int ID) throws Exception {
 //        OrderInfo orderInfo = new OrderInfo();
 //        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
 //        orderInfo.setSenderID(paramMap.get("SendUserID").toString());
-        return orderMapper.deleteInfo(cancelOrderDto);
+        return orderMapper.deleteInfo(ID);
     }
 
     /**
@@ -180,25 +195,25 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 删除接单用户id,电话
      *
-     * @param writeInfoDto
+     * @param ID
      */
     @Override
-    public void deleteReceiver(WriteInfoDto writeInfoDto) throws Exception {
+    public void deleteReceiver(int ID) throws Exception {
 
-        orderMapper.deleteReceiver(writeInfoDto);
+        orderMapper.deleteReceiver(ID);
     }
 
     /**
      * 改变订单状态
-     * @param writeInfoDto
+     * @param ID
      * @param orderStatusID
      * @return
      * @throws Exception
      */
     @Override
-    public int changeOrderStatus(WriteInfoDto writeInfoDto, int orderStatusID) throws Exception {
+    public int changeOrderStatus(int ID, int orderStatusID) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(writeInfoDto.getID());
+        orderInfo.setID(ID);
         orderInfo.setOrderStatus(orderStatusID);
         return orderMapper.changeOrderStatus(orderInfo);
     }
@@ -220,29 +235,26 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 查询单个信息详情
      *
-     * @param paramMap
+     * @param ID
      * @return
      */
     @Override
-    public List<OrderInfo> querySingleOrder(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        return orderMapper.querySingleInfoOrder(orderInfo);
+    public List<OrderInfo> querySingleOrder(int ID) throws Exception {
+
+        return orderMapper.querySingleInfoOrder(ID);
     }
 
     /**
      * 发单人编辑订单
      *
-     * @param paramMap
+     * @param writeInfoDto
      * @return
      * @throws Exception
      */
     @Override
-    public int senderEdit(HashMap<String, Object> paramMap) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
-        orderInfo.setTel(paramMap.get("telephone").toString());
-        return orderMapper.senderEditInfo(orderInfo);
+    public int senderEditInfo(WriteInfoDto writeInfoDto) throws Exception {
+
+        return orderMapper.senderEditInfo(writeInfoDto);
     }
 
     /**
@@ -269,9 +281,9 @@ public class OrderServiceImpl implements OrderService {
      * @throws Exception
      */
     @Override
-    public int isValid(int id) throws Exception {
+    public int setToInvalid(int id) throws Exception {
 
-        return orderMapper.isValid(id);
+        return orderMapper.setToInvalid(id);
     }
 
     /**

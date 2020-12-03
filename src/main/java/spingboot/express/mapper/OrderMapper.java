@@ -6,7 +6,7 @@ package spingboot.express.mapper;
 
 import org.springframework.stereotype.Repository;
 import spingboot.express.dto.WriteInfoDto;
-import spingboot.express.dto.cancelOrderDto;
+import spingboot.express.dto.CancelOrderDto;
 import spingboot.express.pojo.OrderInfo;
 
 import java.util.List;
@@ -65,7 +65,7 @@ public interface OrderMapper {
      * @param ID
      * @return
      */
-    int checkStatus(int ID);
+    int checkStatusById(int ID);
 
     /**
      * 根据订单ID查询订单的所有信息
@@ -83,17 +83,17 @@ public interface OrderMapper {
 
     /**
      * 查询某条订单
-     * @param orderInfo
+     * @param ID
      * @return
      */
-    List<OrderInfo> querySingleInfoOrder(OrderInfo orderInfo);
+    List<OrderInfo> querySingleInfoOrder(int ID);
 
     /**
      * 发单用户取消发单，删除订单
-     * @param cancelOrderDto
+     * @param ID
      * @return
      */
-     int deleteInfo(cancelOrderDto cancelOrderDto);
+     int deleteInfo(int ID);
 
     /**
      * 更新操作，在删除主键后使主键连续
@@ -111,16 +111,16 @@ public interface OrderMapper {
 
     /**
      * 接单用户取消接单,删除接单记录
-     * @param writeInfoDto
+     * @param ID
      */
-     void deleteReceiver(WriteInfoDto writeInfoDto);
+     void deleteReceiver(int ID);
 
     /**
      *发单人编辑订单
-     * @param orderInfo
+     * @param writeInfoDto
      * @return
      */
-     int senderEditInfo(OrderInfo orderInfo);
+     int senderEditInfo(WriteInfoDto writeInfoDto);
 
     /**
      * 接单人编辑订单
@@ -134,7 +134,7 @@ public interface OrderMapper {
      * @param id 表示数据变化影响的行数
      * @return
      */
-     int isValid(int id);
+     int setToInvalid(int id);
 
     /**
      * 用户长时间未点击确认，自动确认
