@@ -16,4 +16,7 @@ public class WechatConfig {
 
     @Value("${wechat.secret}")
     private String secret;
+
+    @Value("${wechat.requestUrl}")
+    private String requestUrl;
 }

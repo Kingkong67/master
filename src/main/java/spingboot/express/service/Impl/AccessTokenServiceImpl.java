@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.codec.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import spingboot.express.constant.PlatformKey;
 import spingboot.express.constant.TimeRange;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.exception.ServiceException;
@@ -39,8 +40,6 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     }
 
 
-
-
     /**
      * 生成token值
      *
@@ -49,23 +48,23 @@ public class AccessTokenServiceImpl implements AccessTokenService {
      * @return
      */
     @Override
-    public String createAccessTokenByUserCode(String platformCode, String userCode) {
+    public String createAccessTokenByUserCode(PlatformKey platformCode, String userCode) {
         return createAccessToken(userCode, platformCode);
     }
 
     /**
      * 创建refreshToken
      *
-     * @param userCode     userCode
-     * @param platformCode platformCode
+     * @param userCode    userCode
+     * @param platformKey platformKey
      * @return
      */
     @Override
-    public String createRefreshToken(String userCode, String platformCode) {
+    public String createRefreshToken(String userCode, PlatformKey platformKey) {
         long currentTime = System.currentTimeMillis();
         SecretKey key = new SecretKeySpec(jwtRefreshTokenSecretByte, 0, jwtRefreshTokenSecretByte.length, "AES");
         DefaultClaims defaultClaims = new DefaultClaims();
-        defaultClaims.setId(this.jwtId).setSubject(userCode).setAudience(platformCode).setIssuedAt(new Date(currentTime))
+        defaultClaims.setId(this.jwtId).setSubject(userCode).setAudience(platformKey.name()).setIssuedAt(new Date(currentTime))
                 .setExpiration(new Date(currentTime + TimeRange.ONE_DAY_MILLS));
         JwtBuilder jwtBuilder = Jwts.builder().setClaims(defaultClaims).signWith(SignatureAlgorithm.HS256, key);
         return jwtBuilder.compact();
@@ -75,16 +74,16 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     /**
      * 检查refreshToken是否有效
      *
-     * @param platformCode platformCode
+     * @param platformKey  platformKey
      * @param userCode     userCode
      * @param refreshToken refreshToken
      * @return
      */
     @Override
-    public boolean isRefreshTokenValid(String platformCode, String userCode, String refreshToken) {
+    public boolean isRefreshTokenValid(PlatformKey platformKey, String userCode, String refreshToken) {
         try {
             log.info("get check refreshToken.");
-            Jws<Claims> claimsJws = Jwts.parser().requireSubject(userCode).requireAudience(platformCode)
+            Jws<Claims> claimsJws = Jwts.parser().requireSubject(userCode).requireAudience(platformKey.name())
                     .setSigningKey(this.jwtRefreshTokenSecretByte).parseClaimsJws(refreshToken);
             log.info("check refreshToken success, the refreshToken is {}.", refreshToken);
             return claimsJws.getBody().getExpiration().after(new Date());
@@ -119,20 +118,20 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     /**
      * 检查token是否有效
      *
-     * @param userCode     userCode
-     * @param platformCode platformCode
-     * @param token        token
+     * @param userCode    userCode
+     * @param platformKey platformKey
+     * @param token       token
      * @return userCode
      */
     @Override
-    public String isAccessTokenValid(String userCode, String platformCode, String token) {
+    public String isAccessTokenValid(String userCode, PlatformKey platformKey, String token) {
         try {
             JwtParser jwtParser = Jwts.parser();
             if (StringUtils.isNoneEmpty(userCode)) {
-                jwtParser= jwtParser.requireSubject(userCode);
+                jwtParser = jwtParser.requireSubject(userCode);
             }
-            if (StringUtils.isNotEmpty(platformCode)) {
-                jwtParser = jwtParser.requireAudience(platformCode);
+            if (StringUtils.isNotEmpty(platformKey.name())) {
+                jwtParser = jwtParser.requireAudience(platformKey.name());
             }
             Jws<Claims> claimsJwt = jwtParser.setSigningKey(Base64.decode(this.jwtAccessTokenSecret)).parseClaimsJws(token);
             if (claimsJwt.getBody().getExpiration().after(new Date())) {
@@ -148,16 +147,16 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     /**
      * 生成token方法
      *
-     * @param userCode     userCode
-     * @param platformCode platformCode
+     * @param userCode    userCode
+     * @param platformKey platformKey
      * @return 返回token
      */
-    private String createAccessToken(String userCode, String platformCode) {
+    private String createAccessToken(String userCode, PlatformKey platformKey) {
         byte[] accessSecretByte = Base64.decode(jwtAccessTokenSecret);
         SecretKey key = new SecretKeySpec(accessSecretByte, 0, accessSecretByte.length, "AES");
-        DefaultClaims defaultClaims = createDefaultClaims(userCode, platformCode);
+        DefaultClaims defaultClaims = createDefaultClaims(userCode, platformKey);
         defaultClaims.put("userCode", userCode);
-        defaultClaims.put("platformCode", platformCode);
+        defaultClaims.put("platformKey", platformKey.name());
         JwtBuilder jwtBuilder = Jwts.builder().setClaims(defaultClaims).signWith(SignatureAlgorithm.HS256, key);
         return jwtBuilder.compact();
     }
@@ -165,17 +164,42 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     /**
      * 获取到注册中的必要声明
      *
-     * @param userCode     userCode
-     * @param platformCode platformCode
+     * @param userCode    userCode
+     * @param platformKey platformKey
      * @return
      */
-    private DefaultClaims createDefaultClaims(String userCode, String platformCode) {
+    private DefaultClaims createDefaultClaims(String userCode, PlatformKey platformKey) {
         DefaultClaims defaultClaims = new DefaultClaims();
         long current = System.currentTimeMillis();
-        long expirationMills = current + TimeRange.TEN_MINUTES_MILLS;
+        long expirationMills = determineExpirationMills(current, platformKey);
         //关键代码
-        defaultClaims.setId(this.jwtId).setSubject(userCode).setIssuedAt(new Date(current)).setAudience(platformCode)
+        defaultClaims.setId(this.jwtId).setSubject(userCode).setIssuedAt(new Date(current)).setAudience(platformKey.name())
                 .setExpiration(new Date(expirationMills));
         return defaultClaims;
+    }
+
+    /**
+     * 根据platformCode判断过期时间
+     *
+     * @param current      current
+     * @param platformKey platformCode
+     * @return
+     */
+    private long determineExpirationMills(long current, PlatformKey platformKey) {
+        long expirationMills = 0;
+        switch (platformKey) {
+            case WEBSITE:
+                expirationMills = current + TimeRange.ONE_DAY_MILLS;
+                break;
+            case WECHAT:
+                expirationMills = current + TimeRange.ONE_HOUR_MILLS;
+                break;
+            case MOBILE:
+                expirationMills = current + TimeRange.TEN_MINUTES_MILLS;
+                break;
+            default:
+                log.error("Unknown appKey: {}.", platformKey);
+        }
+        return expirationMills;
     }
 }

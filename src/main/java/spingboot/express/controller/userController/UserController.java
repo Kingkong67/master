@@ -11,11 +11,7 @@ import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.enums.UserCommonStatus;
 import spingboot.express.pojo.User;
-import spingboot.express.service.AccessTokenService;
 import spingboot.express.service.UserService;
-import spingboot.express.utils.CodeMakerUtil;
-
-import java.util.HashMap;
 
 /**
  * 用户模块控制层
@@ -28,29 +24,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private AccessTokenService accessTokenService;
-
-    private String userCode;
-
-    private String platformCode;
-
-    @Autowired
-    public void setCode() {
-        userCode = CodeMakerUtil.createUserCode();
-        platformCode = CodeMakerUtil.createPlatformCode();
-    }
-
-    @PostMapping("/getToken")
-    public String testToken() {
-        log.info("UserCode = > {}.", userCode);
-        return accessTokenService.createAccessTokenByUserCode(platformCode, userCode);
-    }
-
-    @GetMapping("/checkTokenValid")
-    public String checkTokenValid(@RequestBody HashMap<String,Object> paramMap) {
-        return accessTokenService.isAccessTokenValid(userCode, platformCode,String.valueOf(paramMap.get("token")));
-    }
 
     @Value("${server.port}")
     private int port;

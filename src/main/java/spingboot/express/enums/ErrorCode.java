@@ -29,6 +29,7 @@ public enum ErrorCode {
     PASSWORD_RESET_FAILED(5004, "用户密码重置失败"),
     USER_IDENTITY_FAILED(5005,"用户实名制失败"),
     USER_SIGN_IN_FAILED(5006, "用户登录失败"),
+    GET_TOKEN_VALUE_FAILED(5007, "获取请求token失败"),
 
     RETRY_SIGN_IN(6000,"用户未授权，请重新登录");
 

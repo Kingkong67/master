@@ -8,5 +8,15 @@ public class Constants {
 
     public static final String AUTH_TOKEN_CODE = "AUTH_TOKEN_CODE";
 
-    public static final String SIGN_IN_FAILED_REDIS_KEY = "SIGN_IN_FAILED_REDIS_KEY";
+    public static final String SEPARATOR = "_";
+
+    public static final String APP_ID = "appId";
+
+    public static final String SECRET = "secret";
+
+    public static final String USER_CODE = "userCode";
+
+    public static final String OPEN_ID = "openid";
+
+    public static final String SESSION_KEY = "session_key";
 }

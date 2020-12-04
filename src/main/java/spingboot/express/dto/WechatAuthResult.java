@@ -1,10 +1,10 @@
-package spingboot.express.commons;
+package spingboot.express.dto;
 
 
 import lombok.Data;
 
 @Data
-public class WechatAppResult extends Result {
+public class WechatAuthResult {
 
     /**
      * 用户唯一标识
@@ -23,26 +23,30 @@ public class WechatAppResult extends Result {
     private String unionId;
 
     /**
+     * 返回用户需要登录使用的token值
+     */
+    private String tokenId;
+
+    /**
      * 错误码
      */
-    private String errCode;
+    private int errCode;
 
     /**
      * 错误信息
      */
     private String errMsg;
 
-    public WechatAppResult(){
-        super();
+    public WechatAuthResult() {
     }
 
     @Override
     public String toString() {
-        return "WechatAppResult{" +
+        return "WechatAuthResult{" +
                 "openId='" + openId + '\'' +
                 ", session_key='" + session_key + '\'' +
-                ", unionId='" + unionId + '\'' +
-                ", errCode='" + errCode + '\'' +
+                ", tokenId='" + tokenId + '\'' +
+                ", errCode=" + errCode +
                 ", errMsg='" + errMsg + '\'' +
                 '}';
     }
