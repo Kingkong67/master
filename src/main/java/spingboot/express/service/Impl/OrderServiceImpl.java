@@ -218,6 +218,12 @@ public class OrderServiceImpl implements OrderService {
         return orderMapper.changeOrderStatus(orderInfo);
     }
 
+    @Override
+    public void deleteSenderInOrder(int ID) throws Exception {
+
+        orderMapper.deleteSenderInOrder(ID);
+    }
+
     /**
      * 从最大的一条数据下面开始加
      *
@@ -265,12 +271,12 @@ public class OrderServiceImpl implements OrderService {
      * @throws Exception
      */
     @Override
-    public int geterEdit(HashMap<String, Object> paramMap) throws Exception {
+    public int receiverEditInfo(HashMap<String, Object> paramMap) throws Exception {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setID(Integer.valueOf(paramMap.get("orderInfoID").toString()));
         orderInfo.setReceiveTel(paramMap.get("receiver_telephone").toString());
         orderInfo.setReceiverID(paramMap.get("receiverID").toString());
-        return orderMapper.geterEditInfo(orderInfo);
+        return orderMapper.receiverEditInfo(orderInfo);
     }
 
     /**
@@ -284,6 +290,16 @@ public class OrderServiceImpl implements OrderService {
     public int setToInvalid(int id) throws Exception {
 
         return orderMapper.setToInvalid(id);
+    }
+
+    /**
+     * 改变订单为有效
+     * @param ID
+     * @return
+     */
+    @Override
+    public int setToValid(int ID) throws Exception {
+        return orderMapper.setToValid(ID);
     }
 
     /**

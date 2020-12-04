@@ -123,18 +123,31 @@ public interface OrderMapper {
      int senderEditInfo(WriteInfoDto writeInfoDto);
 
     /**
+     * 发单人删除订单，仅删除订单中的信息，订单仍然存在
+     * @param ID
+     */
+    void deleteSenderInOrder(int ID);
+
+    /**
      * 接单人编辑订单
      * @param orderInfo
      * @return
      */
-     int geterEditInfo(OrderInfo orderInfo);
+     int receiverEditInfo(OrderInfo orderInfo);
 
     /**
-     * 改变订单有效性
-     * @param id 表示数据变化影响的行数
+     * 改变订单为无效
+     * @param ID 表示数据变化影响的行数
      * @return
      */
-     int setToInvalid(int id);
+     int setToInvalid(int ID);
+
+    /**
+     * 改变订单为有效
+     * @param ID
+     * @return
+     */
+     int setToValid(int ID);
 
     /**
      * 用户长时间未点击确认，自动确认

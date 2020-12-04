@@ -7,14 +7,14 @@ public enum OrderTypeEnum {
 
     NOT_RECEIVED(1,"未领取","订单处于未被领取状态"),
     RECEIVED(2,"已领取","订单已被领取"),
-    SENDER_CANCLES_THE_ORDER(3,"取消发单","发单人取消发单"),
-    RECEIVER_CANCLES_THE_ORDER(4,"取消接单","接单人取消接单"),
+//    SENDER_CANCELS_THE_ORDER(3,"取消发单","发单人取消发单"),
+//    RECEIVER_CANCELS_THE_ORDER(4,"取消接单","接单人取消接单"),
     RECEIVER_RECEIVED_THE_ORDER(5,"拿到订单","接单人拿到订单"),
-    NOT_CONFIRMED(6,"未收到","发单人点击未收到订单"),
-    RECEIVER_CONFIRM_DELIVERY(7,"已送达","接单人已送达订单"),
-    CONFIRMED(8,"已收到","发单人点击已收到订单"),
-    COMPLETED(9,"已完成","订单已完成"),
-    NOT_COMPLETED(10,"未完成","订单未完成");
+    RECEIVER_CONFIRM_DELIVERY(6,"已送达","接单人已送达订单"),
+    NOT_CONFIRMED(7,"未收到","发单人点击未收到订单"),
+    CONFIRMED(8,"已收到","发单人点击已收到订单");
+//    COMPLETED(9,"已完成","订单已完成"),
+//    NOT_COMPLETED(10,"未完成","订单未完成");
 
     private int code;
     private String name;

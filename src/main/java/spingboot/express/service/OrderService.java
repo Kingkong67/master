@@ -94,6 +94,12 @@ public interface OrderService {
      int changeOrderStatus(int ID,int orderStatusID) throws Exception;
 
     /**
+     * 发单人删除订单，仅删除订单中的信息，订单仍然存在
+     * @param ID
+     */
+    void deleteSenderInOrder(int ID) throws Exception;
+
+    /**
      * 删除某条订单
      * @param ID
      * @return
@@ -143,14 +149,22 @@ public interface OrderService {
      * @return
      * @throws Exception
      */
-     int geterEdit(HashMap<String,Object> paramMap) throws Exception;
+     int receiverEditInfo(HashMap<String,Object> paramMap) throws Exception;
 
     /**
-     * 改变订单的有效性,失效之后不再展示在页面
+     * 改变订单为无效
      * @param id
      * @return
      */
      int setToInvalid(int id) throws Exception;
+
+    /**
+     * 改变订单为有效
+     * @param ID
+     * @return
+     */
+    int setToValid(int ID) throws Exception;
+
 
     /**
      * 用户长时间未点击确认，自动确认

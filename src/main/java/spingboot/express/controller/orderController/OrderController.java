@@ -2,6 +2,7 @@ package spingboot.express.controller.orderController;
 /**
  * 订单模块控制器
  */
+/* 对每一个订单设计一个计时器，到达指定的时间还没有人接单的话，就提醒发单用户是否重新发单 */
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
@@ -139,6 +140,7 @@ public class OrderController {
             if (ifReceived == null || ifReceived.equals("")) {
                 log.info("【接单人开始接单】 handleOrder start");
                 orderService.userOrder(receiveOrderDto, ID);
+                orderService.setToInvalid(ID);
                 result.setIsSuccess(true);
                 result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
 //              result.setMessage("接单人接单成功");
@@ -236,13 +238,12 @@ public class OrderController {
                 result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
                 result.setIsSuccess(true);
                 log.info("【发单人取消发单成功】 cancelOrder success");
-                return result;
             } else {
                 result.setIsSuccess(false);
                 result.setMessage("接单用户已确认拿到订单，无法取消");
                 log.info("【发单人取消发单失败】 cancelOrder fail");
-                return result;
             }
+            return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
             result.setMessage(e.getMessage());
@@ -266,22 +267,21 @@ public class OrderController {
                 if ((orderInfo.getReceiveTime().getTime() - orderInfo.getCreateTime().getTime()) <
                         ((orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 2)
                         &&
-                        (new Date().getTime() - orderInfo.getReceiveTime().getTime())<
+                        (new Date().getTime() - orderInfo.getReceiveTime().getTime()) <
                                 (orderInfo.getDeadLine().getTime() - orderInfo.getCreateTime().getTime()) / 4) {
 
                     log.info("【接单人取消接单开始】 cancelReceipt start");
                     orderService.deleteReceiver(writeInfoDto.getID());
+                    orderService.setToValid(writeInfoDto.getID());
                     orderService.changeOrderStatus(writeInfoDto.getID(), OrderTypeEnum.NOT_RECEIVED.getCode());
                     result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
                     result.setIsSuccess(true);
                     log.info("【接单人取消接单成功】 cancelReceipt success");
-                    return result;
                 } else {
                     if (new Date().getTime() > orderInfo.getDeadLine().getTime()) {
                         log.error("【惩罚100%】");
                         result.setIsSuccess(false);
                         result.setMessage("期限已过");
-                        return result;
                     } else {
                         log.info("【接单人取消接单开始】 cancelReceipt start");
                         orderService.deleteReceiver(writeInfoDto.getID());
@@ -290,15 +290,14 @@ public class OrderController {
                         result.setIsSuccess(true);
                         result.setMessage("惩罚50%用户给的跑腿费");
                         log.info("【接单人取消接单成功】 cancelReceipt success");
-                        return result;
                     }
                 }
             } else {
                 result.setIsSuccess(false);
                 result.setMessage("您已确认拿到订单，无法取消接单");
                 log.info("【接单人取消接单失败】 cancelReceipt fail");
-                return result;
             }
+            return result;
         } catch (Exception e) {
             result.setMessage(e.getMessage());
             result.setIsSuccess(false);
@@ -320,7 +319,7 @@ public class OrderController {
         try {
             log.info("【接单人拿到订单开始】 getOrder start");
             orderService.changeOrderStatus(ID, OrderTypeEnum.RECEIVER_RECEIVED_THE_ORDER.getCode());
-            orderService.setToInvalid(ID);
+//            orderService.setToInvalid(ID);
             result.setMessage("接单用户拿到订单成功");
             result.setIsSuccess(true);
             log.info("【接单人拿到订单成功】 getOrder success");
@@ -382,7 +381,7 @@ public class OrderController {
     }
 
     /**
-     * 发单人取消发单删除某条发单信息
+     * 发单人取消发单,删除某条发单信息
      *
      * @param ID
      * @return
@@ -391,19 +390,17 @@ public class OrderController {
     public Result deleteSendOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
-            int ret = orderService.checkStatusById(ID);
-            if (ret >= OrderTypeEnum.COMPLETED.getCode()) {
+            if (orderService.checkStatusById(ID) == OrderTypeEnum.NOT_RECEIVED.getCode()) {
                 log.info("【删除发单信息开始】 deleteSendOrder start");
                 orderService.deleteInfo(ID);
                 result.setIsSuccess(true);
                 result.setMessage("删除订单完成");
                 log.info("【删除发单信息成功】 deleteSendOrder success");
-                return result;
             } else {
-                result.setMessage("暂时无权删除订单");
+                result.setMessage("订单已被接收，暂时无权删除订单");
                 result.setIsSuccess(false);
-                return result;
             }
+            return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
             log.error("【删除发单信息失败】 deleteSendOrder fail", e);
@@ -412,11 +409,33 @@ public class OrderController {
     }
 
     /**
-     * 发单人删除某条发单信息，与取消发单不同，只是删除订单中的发单人的信息
+     * 发单人删除个人账户下某条发单信息，与取消发单不同，只是删除订单中的发单人的信息
      */
+    @GetMapping("/deleteSenderInOrder/{ID}")
+    public Result deleteSenderInOrder(@PathVariable int ID) {
+        Result result = new Result();
+        try {
+            if (orderService.checkStatusById(ID) == OrderTypeEnum.CONFIRMED.getCode()) {
+                log.info("【删除接单人信息开始】deleteSenderInOrder start");
+                orderService.deleteSenderInOrder(ID);
+                result.setMessage("删除接单人信息成功");
+                result.setIsSuccess(true);
+            } else {
+                log.error("【删除接单人信息失败】deleteSenderInOrder fail");
+                result.setIsSuccess(false);
+                result.setMessage("删除接单人信息成功");
+            }
+            return result;
+        } catch (Exception e) {
+            log.error("【删除接单人信息失败】deleteSenderInOrder fail", e);
+            result.setMessage(e.getMessage());
+            result.setIsSuccess(false);
+            return result;
+        }
+    }
 
     /**
-     * 删除某条接单信息
+     * 用户删除某条已经接过的信息，用户必须将订单状态改变为已收货才可以删除订单
      *
      * @param ID
      * @return
@@ -425,18 +444,17 @@ public class OrderController {
     public Result deleteGetOrder(@PathVariable int ID) {
         Result result = new Result();
         try {
-            int ret = orderService.checkStatusById(ID);
-            if (ret >= OrderTypeEnum.COMPLETED.getCode()) {
+            if (orderService.checkStatusById(ID) == OrderTypeEnum.CONFIRMED.getCode()) {
                 log.info("【删除接单信息开始】 deleteGetOrder start");
                 orderService.deleteReceiver(ID);
+                result.setMessage("删除订单成功");
                 result.setIsSuccess(true);
                 log.info("【删除接单信息成功】 deleteGetOrder success");
-                return result;
             } else {
-                result.setMessage("无权删除订单");
+                result.setMessage("发单用户未点击拿到订单，无权删除订单");
                 result.setIsSuccess(false);
-                return result;
             }
+            return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
             log.error("【删除接单信息失败】 deleteGetOrder fail", e);
@@ -473,7 +491,7 @@ public class OrderController {
      * @param ID
      * @return
      */
-    @RequestMapping("/senderConfirmReceipt/{ID}")
+    @GetMapping("/senderConfirmReceipt/{ID}")
     public Result senderConfirmReceipt(@PathVariable int ID) {
         Result result = new Result();
         try {
@@ -487,7 +505,8 @@ public class OrderController {
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
-            log.info("【发单人确认订单失败】 confirmReceipt fail", e);
+            result.setMessage(e.getMessage());
+            log.error("【发单人确认订单失败】 confirmReceipt fail", e);
             return result;
         }
     }
@@ -498,30 +517,34 @@ public class OrderController {
      * @param ID
      * @return
      */
-    @RequestMapping("/senderNotReceived/{ID}")
+    @GetMapping("/senderNotReceived/{ID}")
     public Result senderNotReceived(@PathVariable int ID) {
         Result result = new Result();
         try {
             log.info("【发单人点击未确认订单开始】 noOrdersReceived start");
-            int ret = orderService.checkStatusById(ID);
-            if (ret == OrderTypeEnum.RECEIVER_CONFIRM_DELIVERY.getCode()) {
-                log.info("【平台介入调查】");
-                result.setMessage("平台介入调查，存在不可解决的问题");
-                result.setIsSuccess(false);
-                return result;
-            } else {
-                orderService.changeOrderStatus(ID, OrderTypeEnum.NOT_CONFIRMED.getCode());
-                orderService.setToInvalid(ID);
-                result.setIsSuccess(true);
-                result.setMessage("用户未收到订单？？？");
-                log.info("【发单人点击未确认订单成功】 noOrdersReceived success");
-                return result;
-            }
-
+            orderService.changeOrderStatus(ID, OrderTypeEnum.NOT_CONFIRMED.getCode());
+            orderService.setToInvalid(ID);
+            result.setMessage("平台介入调查");
+            result.setIsSuccess(true);
+//            if (orderService.checkStatusById(ID) > OrderTypeEnum.NOT_RECEIVED.getCode()) {
+//                log.info("【平台介入调查】");
+//                result.setMessage("平台介入调查，存在不可解决的问题");
+//                result.setIsSuccess(false);
+//            } else {
+//                orderService.changeOrderStatus(ID, OrderTypeEnum.NOT_CONFIRMED.getCode());
+//                orderService.setToInvalid(ID);
+//                result.setIsSuccess(true);
+//                result.setMessage("用户未收到订单？？？");
+//                log.info("【发单人点击未确认订单成功】 noOrdersReceived success");
+//            }
+            return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
-            log.info("【发单人点击未确认订单失败】 noOrdersReceived fail", e);
+            result.setMessage(e.getMessage());
+            log.error("【发单人点击未确认订单失败】 noOrdersReceived fail", e);
             return result;
         }
     }
+
+
 }
