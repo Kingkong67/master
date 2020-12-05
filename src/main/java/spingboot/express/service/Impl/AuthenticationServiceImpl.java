@@ -58,7 +58,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             String token = accessTokenService.createAccessTokenByUserCode(PlatformKey.WECHAT, userCode);
             log.info("The openId => {}, sessionKey => {}, token => {}.", openId, sessionKey, token);
             wechatAuthResult.setTokenId(token);
-            redisCacheService.saveObject(Constants.AUTH_USER_CODE + Constants.SEPARATOR + userCode, token);
+            redisCacheService.saveValue(Constants.AUTH_USER_CODE + Constants.SEPARATOR + userCode, token);
         }
         return wechatAuthResult;
 

@@ -45,21 +45,17 @@ public class RedisCacheServiceImpl implements RedisCacheService {
 
     @Override
     public String getValue(String key) {
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        return valueOperations.get(key);
-
+       return getObject(key, String.class);
     }
 
     @Override
     public void saveValueWithExpireTime(String key, String value, long expireTime) {
-        ValueOperations<String, String> valueOperations = stringRedisTemplate.opsForValue();
-        valueOperations.set(key, value, expireTime);
+        saveObjectWithExpireTime(key, value, expireTime, TimeUnit.MILLISECONDS);
     }
 
     @Override
     public void saveValue(String key, Object value) {
-        ValueOperations<String, Object> valueOperations = objectRedisTemplate.opsForValue();
-        valueOperations.set(key, value);
+        saveObject(key, value);
     }
 
     @Override
