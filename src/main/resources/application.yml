@@ -15,7 +15,21 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ExpressService?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true&&serverTimezone=UTC
     username: root
-    password: 15226221250
+    password: 1111
+
+  redis:
+    host: 101.200.172.180
+    port: 6379
+    password: redis
+    timeout: 3000  # 连接超时时间
+    lettuce:
+      shutdown-timeout: 100  #在关闭客户端连接之前等待任务处理完成的最长时间，在这之后，无论任务是否执行完成，都会被执行器关闭，默认100ms
+      pool:
+        time-between-eviction-runs: 100
+        max-active: 3 # 连接池最大连接数（使用负值表示没有限制）
+        max-idle: 3   # 连接池中的最大空闲连接
+        min-idle: 1   # 连接池中的最小空闲连接
+        max-wait: -1   # 连接池最大阻塞等待时间（使用负值表示没有限制）
 
 #日志配置
 logging:
@@ -46,6 +60,8 @@ pagehelper:
   supportMethodsArguments: true
   params: count=countSql
 
+
+#token验证
 jwt:
   id: express_jwt_id
   access:
@@ -53,3 +69,10 @@ jwt:
       secret: 23456dfhgff98858875fjgsifjghi25212
   refresh:
     secret: w46245643gfhsfhsfgh5546546452f2hg12
+
+
+#微信端请求获取token
+wechat:
+  appId: wx1408855333e63f23
+  secret: a94fbedbfaf571622398aa4965df0205
+  requestUrl: https://api.weixin.qq.com/sns/jscode2session?appid={appId}&secret={secret}&js_code={userCode}&grant_type=authorization_code
