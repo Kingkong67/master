@@ -233,9 +233,9 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
-    public int alter(int i) throws Exception {
+    public int alterInfo(int i) throws Exception {
 
-        return orderMapper.alterinfo(i);
+        return orderMapper.alterInfo(i);
     }
 
     /**

@@ -121,7 +121,7 @@ public interface OrderService {
      * @param i
      * @return
      */
-     int alter(int i) throws Exception;
+     int alterInfo(int i) throws Exception;
 
     /**
      * 用户取消接单接口

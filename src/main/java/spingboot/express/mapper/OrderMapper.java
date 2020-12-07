@@ -107,7 +107,7 @@ public interface OrderMapper {
      * @param i
      * @return
      */
-     int alterinfo(int i);
+     int alterInfo(int i);
 
     /**
      * 接单用户取消接单,删除接单记录

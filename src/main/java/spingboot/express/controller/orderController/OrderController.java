@@ -76,6 +76,7 @@ public class OrderController {
      */
     @GetMapping("/list")
     public Result showAllOrderInfoList(PageDomain pageDomain) {
+        System.out.println(1);
         Result result = new Result();
         try {
             isValid();
@@ -90,7 +91,7 @@ public class OrderController {
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
-            result.setMessage(OrderCommonStatus.ERROR.getMessage());
+            result.setMessage(e.getMessage());
             log.error("【查询订单失败】 showAllOrderInfoList fail", e);
             return result;
         }

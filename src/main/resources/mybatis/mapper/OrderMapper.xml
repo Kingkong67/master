@@ -192,7 +192,7 @@
       id = #{id}
     </update>
     <!--使新插入数据库的数据从最大数字+1开始-->
-    <update id="alterinfo" parameterType="int">
+    <update id="alterInfo" parameterType="int">
         alter table orderInfo auto_increment = #{i}
     </update>
     <!--删除数据后，使id连续-->
