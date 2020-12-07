@@ -1,4 +1,4 @@
-package spingboot.express.controller.wechatController;
+package spingboot.express.controller.authController;
 
 
 import lombok.extern.slf4j.Slf4j;
@@ -8,15 +8,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spingboot.express.commons.Result;
+import spingboot.express.constant.PlatformKey;
+import spingboot.express.dto.RefreshTokenDto;
 import spingboot.express.dto.WechatAuthRequest;
 import spingboot.express.dto.WechatAuthResult;
+import spingboot.express.dto.auth.AuthRequest;
+import spingboot.express.dto.auth.AuthResult;
 import spingboot.express.enums.UserCommonStatus;
+import spingboot.express.facade.LoginFacade;
 import spingboot.express.service.AuthenticationService;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
-@RequestMapping("/wechat")
+@RequestMapping("/auth")
 @Slf4j
-public class WeChatLoginController {
+public class AuthController {
+
+    @Autowired
+    private LoginFacade loginFacade;
 
     @Autowired
     private AuthenticationService authenticationService;
@@ -41,4 +51,32 @@ public class WeChatLoginController {
         }
         return result;
     }
+
+
+    @PostMapping("/signIn")
+    public AuthResult signIn(HttpServletRequest request, @RequestBody AuthRequest authRequest) {
+        resolveRequestParameter(authRequest, PlatformKey.WEBSITE);
+        log.info("【用户登录授权开始】");
+        return loginFacade.signIn(request, authRequest);
+    }
+
+    private void resolveRequestParameter(AuthRequest authRequest, PlatformKey platformKey) {
+        if (authRequest.getPlatformKey() == null) {
+            authRequest.setPlatformKey(platformKey);
+        }
+    }
+
+    @PostMapping("/refreshToken")
+    public AuthResult refreshToken(@RequestBody RefreshTokenDto refreshTokenDto) {
+        AuthResult authResult = new AuthResult();
+        try {
+            String newToken = loginFacade.refreshToken(refreshTokenDto);
+            authResult.setRefreshToken(newToken);
+        } catch (Exception e) {
+            log.error("get refresh token for {} failed.", authResult.getPlatformKey());
+            authResult.setRefreshToken(null);
+        }
+        return authResult;
+    }
+
 }

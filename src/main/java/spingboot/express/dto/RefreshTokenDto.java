@@ -1,11 +1,12 @@
-package spingboot.express.dto.auth;
+package spingboot.express.dto;
 
 import lombok.Data;
-import org.springframework.context.annotation.PropertySource;
 import spingboot.express.constant.PlatformKey;
 
 @Data
-public class AuthRequest {
+public class RefreshTokenDto {
+
     private PlatformKey platformKey;
     private String userCode;
+    private String accessToken;
 }
