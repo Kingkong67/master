@@ -36,11 +36,10 @@ public interface OrderService {
     /**
      * 用户接单接口
      * @param receiveOrderDto
-     * @param ID
      * @return
      * @throws Exception
      */
-     int userOrder(ReceiveOrderDto receiveOrderDto, Integer ID) throws Exception;
+     int userOrder(ReceiveOrderDto receiveOrderDto) throws Exception;
 
 
     /**

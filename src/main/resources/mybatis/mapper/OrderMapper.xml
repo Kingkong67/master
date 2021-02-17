@@ -21,6 +21,14 @@
     <result column="is_valid" jdbcType="VARCHAR" property="isValid"/>
     <result column="receive_time" jdbcType="TIMESTAMP" property="receiveTime"/>
 </resultMap>
+
+<resultMap id="BaseResultMap2" type="spingboot.express.dto.ReceiveOrderDto">
+<!--  column中的值代表数据库中的字段，property代表类中对应的字段  -->
+    <id column="id" jdbcType="INTEGER" property="ID"/>
+    <result column="receiver_id" jdbcType="VARCHAR" property="receiverID"/>
+    <result column="receive_tel" jdbcType="VARCHAR" property="receiveTel"/>
+    <result column="order_status" jdbcType="INTEGER" property="orderStatus"/>
+</resultMap>
     <sql id="Base_Order_Info">
        id,tel,ship_address,send_address,money,sex,size,note,dead_line,receiver_id,sender_id,
        receive_tel,order_status,create_time,is_valid,receive_time
@@ -231,7 +239,7 @@
         id = #{ID}
     </update>
     <!--接单人接单,在信息中插入接单人信息-->
-    <update id="userOrder" parameterType="spingboot.express.pojo.OrderInfo">
+    <update id="userOrder" parameterType="spingboot.express.dto.ReceiveOrderDto">
         update orderInfo
         <set>
             <if test="receiveTel != null">

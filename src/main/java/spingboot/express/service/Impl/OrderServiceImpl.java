@@ -17,6 +17,7 @@ import spingboot.express.pojo.OrderInfo;
 import spingboot.express.service.OrderService;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.*;
@@ -106,27 +107,16 @@ public class OrderServiceImpl implements OrderService {
     /**
      * 用户开始接单
      * @param receiveOrderDto
-     * @param ID
      * @return
      * @throws Exception
      */
     @Override
-    public int userOrder(ReceiveOrderDto receiveOrderDto, Integer ID) throws Exception {
-        OrderInfo orderInfo = new OrderInfo();
-        orderInfo.setID(ID);
-        orderInfo.setReceiverID(receiveOrderDto.getReceiverID());
-        orderInfo.setReceiveTel(receiveOrderDto.getReceiveTel());
-        orderInfo.setOrderStatus(OrderTypeEnum.RECEIVED.getCode());
-        orderMapper.userOrder(orderInfo);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        FutureTask<Integer> futureTask = new FutureTask<Integer>(new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return orderMapper.userOrder(orderInfo);
-            }
-        });
-        executor.execute(futureTask);
-        return futureTask.get();
+    public int userOrder(ReceiveOrderDto receiveOrderDto) throws Exception {
+        receiveOrderDto.setOrderStatus(OrderTypeEnum.RECEIVED.getCode());
+        ArrayList<ReceiveOrderDto> list = new ArrayList<>();
+        long startTime = System.currentTimeMillis();
+
+        return orderMapper.userOrder(receiveOrderDto);
     }
 
     /**

@@ -4,6 +4,7 @@ package spingboot.express.controller.orderController;
  */
 /* 对每一个订单设计一个计时器，到达指定的时间还没有人接单的话，就提醒发单用户是否重新发单 */
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +20,10 @@ import spingboot.express.pojo.OrderInfo;
 import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.service.OrderService;
 import spingboot.express.service.UserService;
+import spingboot.express.utils.RedisCache;
+import spingboot.express.utils.RedisUtils;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/orderInfo")
@@ -42,6 +43,8 @@ public class OrderController {
     private OrderService orderService;
 
 
+    @Autowired
+    private RedisCache redisCache;
     /**
      * @描述 发单添加详细信息
      * @参数 [paramMap]
@@ -124,8 +127,8 @@ public class OrderController {
      * @param
      * @return
      */
-    @PostMapping("/receiveOrder/{ID}")
-    public Result receiveOrder(@RequestBody ReceiveOrderDto receiveOrderDto, @PathVariable Integer ID) {
+    @PostMapping("/receiveOrder")
+    public Result receiveOrder(@RequestBody ReceiveOrderDto receiveOrderDto) {
         Result result = new Result();
         try {
             log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
@@ -137,11 +140,11 @@ public class OrderController {
 //                return result;
 //            }
             log.info("【检查订单是否已被其他人接单】 chek start");
-            String ifReceived = orderService.checkIfReceived(ID);
+            String ifReceived = orderService.checkIfReceived(receiveOrderDto.getID());
             if (ifReceived == null || ifReceived.equals("")) {
                 log.info("【接单人开始接单】 handleOrder start");
-                orderService.userOrder(receiveOrderDto, ID);
-                orderService.setToInvalid(ID);
+                orderService.userOrder(receiveOrderDto);
+                orderService.setToInvalid(receiveOrderDto.getID());
                 result.setIsSuccess(true);
                 result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
 //              result.setMessage("接单人接单成功");
@@ -547,5 +550,31 @@ public class OrderController {
         }
     }
 
+    @GetMapping("/test")
+    public Result test(@RequestParam("id") int id) {
+        Result res = new Result();
+        try{
+            redisCache.set("wanghu",id);
+            log.info("成功");
+            res.setIsSuccess(true);
+        }catch (Exception e) {
+            log.error("失败",e);
+            res.setIsSuccess(false);
+        }
+        return res;
+    }
+
+    @GetMapping("/test2")
+    public Result test2(@RequestParam("id") String id) {
+        Result res = new Result();
+        try{
+            Object a = redisCache.get(id);
+            System.out.println(a);
+            res.setIsSuccess(true);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return res;
+    }
 
 }

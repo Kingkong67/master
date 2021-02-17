@@ -47,6 +47,14 @@
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
 
+        <!--    热部署    -->
+        <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional> <!-- 这个需要为 true 热部署才有效 -->
+        <scope>true</scope>
+        </dependency>
+
         <!--引入mybatis依赖包-->
         <dependency>
             <groupId>org.mybatis.spring.boot</groupId>
@@ -94,6 +102,22 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <!--   事件戳     -->
+        <!-- https://mvnrepository.com/artifact/joda-time/joda-time -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.10.10</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.crygier/SpringUtils -->
+        <dependency>
+            <groupId>com.crygier</groupId>
+            <artifactId>SpringUtils</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+
 
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -169,6 +193,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
+
         <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>

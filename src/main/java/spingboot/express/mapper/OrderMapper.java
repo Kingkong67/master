@@ -5,6 +5,7 @@ package spingboot.express.mapper;
 
 
 import org.springframework.stereotype.Repository;
+import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.WriteInfoDto;
 import spingboot.express.dto.CancelOrderDto;
 import spingboot.express.pojo.OrderInfo;
@@ -34,10 +35,10 @@ public interface OrderMapper {
 
     /**
      * 接单用户接单pojo
-     * @param orderInfo
+     * @param receiveOrderDto
      * @return
      */
-     int userOrder(OrderInfo orderInfo);
+     int userOrder(ReceiveOrderDto receiveOrderDto);
 
     /**
      * 查找用户的发单列表
