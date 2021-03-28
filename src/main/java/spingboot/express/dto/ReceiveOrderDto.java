@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Description:
@@ -27,7 +28,7 @@ public class ReceiveOrderDto implements Serializable {
      * 接单人ID
      */
 //    @NotEmpty(message = "接单人ID不为空")
-    private String receiverID;
+    private int receiverID;
 
     /**
      * 接单人电话
@@ -44,4 +45,5 @@ public class ReceiveOrderDto implements Serializable {
      * 接单时间
      */
     private Date receiveTime;
+
 }

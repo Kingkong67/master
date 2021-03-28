@@ -7,6 +7,7 @@ package spingboot.express.controller.orderController;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.Synchronized;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +21,24 @@ import spingboot.express.pojo.OrderInfo;
 import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.service.OrderService;
 import spingboot.express.service.UserService;
+import spingboot.express.utils.RandomUtil;
 import spingboot.express.utils.RedisCache;
 import spingboot.express.utils.RedisUtils;
 
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RestController
 @RequestMapping("/orderInfo")
 @Slf4j
 public class OrderController {
 
+    volatile long startTime = 0;
+    List<ReceiveOrderDto> list = new ArrayList<>();
+    int num = 1;
     /**
      * 注入用户接口
      */
@@ -122,13 +131,63 @@ public class OrderController {
     }
 
     /**
+     * 创建10个线程，并发执行receiveOrder方法
+     */
+    @PostMapping("/receiveOrder")
+    public void receive(@RequestBody ReceiveOrderDto receiveOrderDto) {
+//        List randomNumList = RandomUtil.getRandomNumList(20, 0, 100);
+        ExecutorService service = Executors.newFixedThreadPool(20);
+        CountDownLatch count = new CountDownLatch(20);
+        for (int i = 0; i < 20; i++) {
+            service.execute(new Runnable() {
+                @Override
+                public void run() {
+                    count.countDown();
+                    receiveOrderDto.setReceiverID(num++);
+                    screeningRecipients(receiveOrderDto);
+                }
+            });
+        }
+//        return res;
+    }
+
+
+    public Result screeningRecipients(ReceiveOrderDto receiveOrderDto) {
+        log.info("有一个线程进入了这个方法，然后把它放入到list中-------------------");
+        log.info("线程进入这个方法的时间"+System.currentTimeMillis());
+        Result result = new Result();
+        if (startTime == 0) {
+            startTime = System.currentTimeMillis();
+        }
+        if(System.currentTimeMillis() - startTime < 5) {
+            list.add(receiveOrderDto);
+            while(System.currentTimeMillis() - startTime < 5) {
+
+            }
+        }else{
+            result.setIsSuccess(false);
+            return result;
+        }
+        for (ReceiveOrderDto k:list) {
+            if (k.getReceiverID() == 8) {
+                log.info("这位用户有资格11111111111111111111111");
+                receiveOrder(k);
+            }else {
+                result.setIsSuccess(false);
+                log.info("这位用户没有资格取快递222222222222222222222222 "+k.getReceiverID());
+                return result;
+            }
+        }
+        return result;
+    }
+    /**
      * 接单人接单，并添加接单人的电话信息,ID
      *
      * @param
      * @return
      */
-    @PostMapping("/receiveOrder")
-    public Result receiveOrder(@RequestBody ReceiveOrderDto receiveOrderDto) {
+    public Result receiveOrder(ReceiveOrderDto receiveOrderDto) {
+        log.info("有一个人进来了，他要获取订单~~~~~~~~~~~~~~~~~~~~~~~~~~");
         Result result = new Result();
         try {
             log.info("【检查接单用户信息是否完整】 viewIfFullUserInformation start");
@@ -142,18 +201,25 @@ public class OrderController {
             log.info("【检查订单是否已被其他人接单】 chek start");
             String ifReceived = orderService.checkIfReceived(receiveOrderDto.getID());
             if (ifReceived == null || ifReceived.equals("")) {
-                log.info("【接单人开始接单】 handleOrder start");
-                orderService.userOrder(receiveOrderDto);
-                orderService.setToInvalid(receiveOrderDto.getID());
-                result.setIsSuccess(true);
-                result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
+                log.info("【接单人开始接单】 handleOrder start 单号为:"+receiveOrderDto.ID+" 该用户接单的时间为："+System.currentTimeMillis());
+                //我用乐观锁实现了锁的问题
+
+                int res = orderService.userOrder(receiveOrderDto);
+//                orderService.setToInvalid(receiveOrderDto.getID());多余的步骤，淘汰！！！
+                if(res == 1) {
+                    result.setIsSuccess(true);
+                    result.setMessage(OrderCommonStatus.SUCCESS.getMessage());
 //              result.setMessage("接单人接单成功");
-                log.info("【接单人接单成功】 handleOrder success");
+                    log.info("【接单人接单成功】 handleOrder success"+receiveOrderDto.ID);
+                }else if(res == 0) {
+                    log.error("【接单失败，订单已被接】order has received");
+                    result.setIsSuccess(false);
+                    result.setMessage(OrderCommonStatus.FAIL.getMessage());
+                }
             } else {
                 log.error("【接单失败，订单已被接】order has received");
                 result.setIsSuccess(false);
                 result.setMessage(OrderCommonStatus.FAIL.getMessage());
-//                result.setMessage("接单失败，订单已被接");
             }
             return result;
         } catch (Exception e) {

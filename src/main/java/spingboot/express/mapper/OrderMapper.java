@@ -4,6 +4,7 @@ package spingboot.express.mapper;
  */
 
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import spingboot.express.dto.ReceiveOrderDto;
 import spingboot.express.dto.WriteInfoDto;

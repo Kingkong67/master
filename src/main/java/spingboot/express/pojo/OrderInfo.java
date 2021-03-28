@@ -101,10 +101,15 @@ public class OrderInfo implements Serializable {
      */
     private Date receiveTime;
 
+    /**
+     * 数据版本
+     */
+    private int version;
+
     @Override
     public String toString(){
         return "电话："+tel+"  取件地址："+shipAddress+"  送货地址："+sendAddress+"  工资："+money+"  备注："+note+" 电话:"+tel
                 +"型号："+size+"截止时间："+deadLine+"接单人电话："+receiveTel+"接单人ID:"+receiverID
-                +"订单状态ID:"+orderStatus+"发单人ID:"+senderID+"创建时间："+createTime+"是否有效："+isValid;
+                +"订单状态ID:"+orderStatus+"发单人ID:"+senderID+"创建时间："+createTime+"是否有效："+isValid+"版本号："+version;
     }
 }
