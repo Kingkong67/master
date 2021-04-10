@@ -133,7 +133,7 @@ public class OrderController {
     /**
      * 创建10个线程，并发执行receiveOrder方法
      */
-    @PostMapping("/receiveOrder")
+
     public void receive(@RequestBody ReceiveOrderDto receiveOrderDto) {
 //        List randomNumList = RandomUtil.getRandomNumList(20, 0, 100);
         ExecutorService service = Executors.newFixedThreadPool(20);
@@ -186,6 +186,7 @@ public class OrderController {
      * @param
      * @return
      */
+    @PostMapping("/receiveOrder")
     public Result receiveOrder(ReceiveOrderDto receiveOrderDto) {
         log.info("有一个人进来了，他要获取订单~~~~~~~~~~~~~~~~~~~~~~~~~~");
         Result result = new Result();
@@ -202,7 +203,6 @@ public class OrderController {
             String ifReceived = orderService.checkIfReceived(receiveOrderDto.getID());
             if (ifReceived == null || ifReceived.equals("")) {
                 log.info("【接单人开始接单】 handleOrder start 单号为:"+receiveOrderDto.ID+" 该用户接单的时间为："+System.currentTimeMillis());
-                //我用乐观锁实现了锁的问题
 
                 int res = orderService.userOrder(receiveOrderDto);
 //                orderService.setToInvalid(receiveOrderDto.getID());多余的步骤，淘汰！！！
