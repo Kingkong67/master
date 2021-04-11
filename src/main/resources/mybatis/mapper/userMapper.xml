@@ -4,31 +4,52 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--对应一个接口的全限定名，myBatis上下文可以通过它找到对应的接口-->
 <mapper namespace="spingboot.express.mapper.UserMapper">
+    <resultMap id="UserInfoMap" type="spingboot.express.pojo.User">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="telephone" jdbcType="VARCHAR" property="telephone"/>
+        <result column="sex" jdbcType="TINYINT" property="sex"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="id_card" jdbcType="VARCHAR" property="id_card"/>
+        <result column="idCardImage" jdbcType="BLOB" property="idCardImage"/>
+        <result column="stuCardImage" jdbcType="BLOB" property="stuCardImage"/>
+        <result column="address" jdbcType="VARCHAR" property="address"/>
+        <result column="createTime" jdbcType="VARCHAR" property="create_time"/>
+        <result column="successOrderCount" jdbcType="INTEGER" property="successOrderCount"/>
+        <result column="failOrderCount" jdbcType="INTEGER" property="failOrderCount"/>
+        <result column="totalOrderCount" jdbcType="INTEGER" property="totalOrderCount"/>
 
-<!--    <select id="getUserByTel" resultType="com.pojo.User">-->
-<!--        select * from user where telephone = #{telephone}-->
-<!--    </select>-->
+    </resultMap>
 
-<!--    <insert id="addUser" parameterType="com.pojo.User" useGeneratedKeys="true" keyProperty="id">-->
-<!--        insert into user values (#{id}, #{nickname}, #{password}, #{telephone},-->
-<!--                                 #{sex}, #{name}, #{id_card}, #{idCardImage}, #{stuCardImage},-->
-<!--                                 #{address}, now(), #{totalOrderCount}, #{successOrderCount}, #{failOrderCount})-->
-<!--    </insert>-->
+    <select id="getUserByTel" resultType="spingboot.express.pojo.User" resultMap="UserInfoMap">
+        select * from user where telephone = #{telephone}
+    </select>
 
-<!--    <select id="getUserByUserID" parameterType="long" resultType="com.pojo.User">-->
-<!--        select * from user where id = #{userID}-->
-<!--    </select>-->
+    <insert id="addUser" parameterType="spingboot.express.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        insert into user values (#{id}, #{nickname}, #{password}, #{telephone},
+                                 #{sex}, #{name}, #{id_card}, #{idCardImage}, #{stuCardImage},
+                                 #{address}, now(), #{totalOrderCount}, #{successOrderCount}, #{failOrderCount})
+    </insert>
 
-<!--    <update id="changeUserInfo" parameterType="com.pojo.User" useGeneratedKeys="true" keyProperty="id">-->
-<!--        update user set nickname = #{nickname}, password = #{password},telephone = #{telephone},-->
-<!--                        sex = #{sex}, name = #{name}, id_card = #{id_card},idCardImage = #{idCardImage},-->
-<!--                        stuCardImage = #{stuCardImage}, addresss = #{address}, createTime = #{create_time},-->
-<!--                        totalOrderCount = #{totalOrderCount}, successOrderCount = #{successOrderCount}, failOrderCount = #{failOrderCount}-->
-<!--                    where id = #{id}-->
-<!--    </update>-->
+    <select id="getUserByUserID" parameterType="long" resultType="spingboot.express.pojo.User" resultMap="UserInfoMap">
+        select nickname, telephone, sex, totalOrderCount, successOrderCount, failOrderCount from user where id = #{userID}
+    </select>
 
-<!--    <delete id="deleteUser" parameterType="long" >-->
-<!--        delete from user where id = #{userID}-->
-<!--    </delete>-->
+    <update id="changeUserInfo" parameterType="spingboot.express.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        update user set nickname = #{nickname}, password = #{password},telephone = #{telephone},
+                        sex = #{sex}, name = #{name}, id_card = #{id_card},idCardImage = #{idCardImage},
+                        stuCardImage = #{stuCardImage}, addresss = #{address}, createTime = #{create_time},
+                        totalOrderCount = #{totalOrderCount}, successOrderCount = #{successOrderCount}, failOrderCount = #{failOrderCount}
+                    where id = #{id}
+    </update>
+
+    <update id="identityUserInfo" parameterType="spingboot.express.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        update user set id_card = #{id_card},idCardImage = #{idCardImage}, stuCardImage = #{stuCardImage} where id = #{id}
+    </update>
+
+    <delete id="deleteUser" parameterType="long" >
+        delete from user where id = #{userID}
+    </delete>
 
 </mapper>

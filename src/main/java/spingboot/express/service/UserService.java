@@ -12,11 +12,11 @@ import spingboot.express.pojo.User;
 
 public interface UserService {
 
-    User loginUserWithPwd(UserInfoDto userInfoDto) throws Exception;
+    UserInfoDto loginUserWithPwd(UserInfoDto userInfoDto) throws Exception;
 
     int addUser(UserInfoDto userInfoDto) throws Exception;
 
-    User loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
+    UserInfoDto loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
     int deleteUser(UserInfoDto userInfoDto) throws Exception;
 
@@ -24,9 +24,9 @@ public interface UserService {
 
     void realUser(UserInfoDto userInfoDto) throws Exception;
 
-    String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
+    int getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception;
 
-    User viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception;
+    UserInfoDto viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception;
 
     int resetPwd(UserInfoDto userInfoDto) throws Exception;
 

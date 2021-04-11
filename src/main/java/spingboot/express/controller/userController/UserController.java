@@ -10,7 +10,6 @@ import spingboot.express.dto.MobilePhoneCodeDto;
 import spingboot.express.dto.UserInfoDto;
 import spingboot.express.enums.ErrorCode;
 import spingboot.express.enums.UserCommonStatus;
-import spingboot.express.pojo.User;
 import spingboot.express.service.UserService;
 
 /**
@@ -52,26 +51,27 @@ public class UserController {
         Result result = new Result();
         log.info("[用户密码登录]开始------");
         try {
-            User user = userService.loginUserWithPwd(userInfoDto);
+            UserInfoDto userInfo = userService.loginUserWithPwd(userInfoDto);
             //SessionHandler.save(user, httpSession);
-            if (user != null) {
-                result.setIsSuccess(true);
-                result.setCode(UserCommonStatus.SUCCESS.getCode());
-                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-                result.setData(userService.getUserBasicInfo(user));
-                log.info("[用户密码登录] => loginUser success!");
-                return result;
+            if (userInfo != null) {
+                if (!userInfo.getTelephone().isEmpty()) {
+                    result.setIsSuccess(true);
+                    result.setCode(UserCommonStatus.SUCCESS.getCode());
+                    result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                    result.setData(userInfo);
+                    log.info("[用户密码登录] => loginUser success!");
+                }
             } else {
                 log.error("[用户密码登录失败] => loginUser failed!");
-                result.setCode(ErrorCode.MOBILE_PHONE_INVALID.getErrorCode());
-                result.setMessage(ErrorCode.MOBILE_PHONE_INVALID.getErrorMessage());
-                return result;
+                result.setCode(ErrorCode.PASSWORD_INVALID.getErrorCode());
+                result.setMessage(ErrorCode.PASSWORD_INVALID.getErrorMessage());
             }
+            return result;
         } catch (Exception e) {
             log.error("[用户密码登录] => loginUser failed!" + e);
-            result.setCode(ErrorCode.USER_SIGN_IN_FAILED.getErrorCode());
+            result.setCode(ErrorCode.MOBILE_PHONE_INVALID.getErrorCode());
             result.setIsSuccess(false);
-            result.setMessage(ErrorCode.USER_SIGN_IN_FAILED.getErrorMessage());
+            result.setMessage(ErrorCode.MOBILE_PHONE_INVALID.getErrorMessage());
             return result;
         }
     }
@@ -86,12 +86,16 @@ public class UserController {
     public Result loginWithCode(@RequestBody MobilePhoneCodeDto mobilePhoneCodeDto) {
         Result result = new Result();
         try {
-            User user = userService.loginWithCode(mobilePhoneCodeDto);
-            result.setIsSuccess(true);
-            result.setData(userService.getUserBasicInfo(user));
-            result.setCode(UserCommonStatus.SUCCESS.getCode());
-            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-            log.info("[用户短信验证码登录] => loginWithCode success!");
+            UserInfoDto userInfoDto = userService.loginWithCode(mobilePhoneCodeDto);
+            if (!userInfoDto.getTelephone().isEmpty()) {
+                result.setIsSuccess(true);
+                result.setData(userInfoDto);
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                log.info("[用户短信验证码登录] => loginWithCode success!");
+            } else {
+                result.setIsSuccess(false);
+            }
             return result;
         } catch (Exception e) {
             result.setIsSuccess(false);
@@ -113,12 +117,16 @@ public class UserController {
         Result result = new Result();
         log.info("[用户忘记密码登录]开始-----");
         try {
-            User user = userService.loginWithCode(mobilePhoneCodeDto);
-            log.info("[用户忘记密码登录] forgetPwd success!");
-            result.setIsSuccess(true);
-//            result.setData(userService.getAllInfo());
-            result.setCode(UserCommonStatus.SUCCESS.getCode());
-            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+            UserInfoDto userInfo = userService.loginWithCode(mobilePhoneCodeDto);
+            if (!userInfo.getTelephone().isEmpty()) {
+                result.setIsSuccess(true);
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                log.info("[用户忘记密码登录] forgetPwd success!");
+            } else {
+                // 手机号为空的话，说明手机号有错误
+                result.setIsSuccess(false);
+            }
             return result;
         } catch (Exception e) {
             log.info("[用户忘记密码登录] forgetPwd failed!", e);
@@ -164,11 +172,12 @@ public class UserController {
         Result result = new Result();
         log.info("[用户获取验证码]开始-----");
         try {
-            log.info("[用户获取验证码] getCode success!");
+            int code = userService.getCode(mobilePhoneCodeDto);
             result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-            result.setData(userService.getCode(mobilePhoneCodeDto));
+            result.setData(code);
             result.setIsSuccess(true);
             result.setCode(UserCommonStatus.SUCCESS.getCode());
+            log.info("[用户获取验证码] getCode success!");
             return result;
         } catch (Exception e) {
             log.error("[用户获取验证码] getCode failed!", e);
@@ -184,18 +193,19 @@ public class UserController {
      * @param userInfoDto 传入储存参数集合
      * @return 返回Result对象
      */
-    @RequestMapping(value = "/addUser", method = RequestMethod.POST)
+    @PostMapping(value = "/addUser")
     public Result addUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         log.info("%%%%%%%%% User sign up start %%%%%%%%%");
         try {
-            if (userService.addUser(userInfoDto) == UserCommonStatus.SUCCESS.getCode()) {
+            int code = userService.addUser(userInfoDto);
+            if (code == UserCommonStatus.SUCCESS.getCode()) {
                 result.setIsSuccess(true);
                 result.setCode(UserCommonStatus.SUCCESS.getCode());
                 result.setData(userService.getAllInfo(userInfoDto));
                 result.setMessage(UserCommonStatus.SUCCESS.getMessage());
                 log.info("User signs up success!");
-            } else if (userService.addUser(userInfoDto) == UserCommonStatus.ERROR.getCode()) {
+            } else if (code == UserCommonStatus.ERROR.getCode()) {
                 result.setIsSuccess(false);
                 result.setCode(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorCode());
                 result.setMessage(ErrorCode.MOBILE_PHONE_USED_BY_OTHERS.getErrorMessage());
@@ -221,11 +231,17 @@ public class UserController {
     public Result deleteUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
         try {
-            userService.deleteUser(userInfoDto);
-            log.info("[用户注销] => deleteUser success!");
-            result.setCode(UserCommonStatus.SUCCESS.getCode());
-            result.setIsSuccess(true);
-            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+            int backCode = userService.deleteUser(userInfoDto);
+            if (backCode == UserCommonStatus.SUCCESS.getCode()) {
+                log.info("[用户注销] => deleteUser success!");
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
+                result.setIsSuccess(true);
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+            } else {
+                result.setIsSuccess(false);
+                result.setCode(ErrorCode.USER_DISABLED.getErrorCode());
+                result.setMessage(ErrorCode.USER_DISABLED.getErrorMessage());
+            }
             return result;
         } catch (Exception e) {
             log.error("[用户注销] => deleteUser failed!", e);
@@ -244,14 +260,22 @@ public class UserController {
     @PostMapping(value = "/getBasicInfo")
     public Result getBasicUser(@RequestBody UserInfoDto userInfoDto) {
         Result result = new Result();
+        System.out.println(userInfoDto.getId());
         log.info("[用户信息获取] 开始-----");
         try {
             UserInfoDto userInfo = userService.getBasicUser(userInfoDto);
-            result.setCode(UserCommonStatus.SUCCESS.getCode());
-            log.info("[用户信息获取] getBasicUser success!");
-            result.setIsSuccess(true);
-            result.setMessage(UserCommonStatus.SUCCESS.getMessage());
-            result.setData(userInfo);
+            if (userInfo != null) {
+                result.setCode(UserCommonStatus.SUCCESS.getCode());
+                log.info("[用户信息获取] getBasicUser success!");
+                result.setIsSuccess(true);
+                result.setMessage(UserCommonStatus.SUCCESS.getMessage());
+                result.setData(userInfo);
+            } else {
+                result.setData(null);
+                result.setCode(UserCommonStatus.NOT_EXIST.getCode());
+                result.setIsSuccess(false);
+                result.setMessage(UserCommonStatus.NOT_EXIST.getMessage());
+            }
             return result;
         } catch (Exception e) {
             result.setCode(ErrorCode.USER_INFO_NOTFOUND.getErrorCode());

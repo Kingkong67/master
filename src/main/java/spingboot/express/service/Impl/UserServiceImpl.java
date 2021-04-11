@@ -15,9 +15,8 @@ import spingboot.express.mapper.UserMapper;
 import spingboot.express.pojo.User;
 import spingboot.express.service.UserService;
 import spingboot.express.utils.ImageUtil;
-
-import java.util.HashMap;
-import java.util.Map;
+import spingboot.express.utils.PhoneNumberCheckUtils;
+import spingboot.express.utils.RandomUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -53,7 +52,7 @@ public class UserServiceImpl implements UserService {
 //        } catch (Exception e) {
 //            logger.error("【数据存入缓存中失败】,the exception => {}", e);
 //        }
-        logger.debug("【保存数据到缓存中花费时间】：{}", System.currentTimeMillis() - currentTime);
+//        logger.debug("【保存数据到缓存中花费时间】：{}", System.currentTimeMillis() - currentTime);
         return checkUserLoginStatus(user);
     }
 
@@ -65,16 +64,15 @@ public class UserServiceImpl implements UserService {
     private int checkUserLoginStatus(User user) {
         try {
             User userInfo = userMapper.getUserByTel(user.getTelephone());
-            if (userInfo == null) {
+            if (userInfo != null) {
+                logger.error("【用户手机号码已被注册】");
+                return UserCommonStatus.ERROR.getCode();
+            } else {
                 logger.warn("【数据库中用户信息不存在】");
                 logger.info("【用户注册开始】");
                 userMapper.addUser(user);
                 logger.info("【用户注册结束】");
-
                 return UserCommonStatus.SUCCESS.getCode();
-            } else {
-                logger.error("【用户手机号码已被注册】");
-                return UserCommonStatus.ERROR.getCode();
             }
         } catch (Exception e) {
             logger.error("【用户注册失败】=> {}", e.getMessage());
@@ -90,13 +88,16 @@ public class UserServiceImpl implements UserService {
      * @throws Exception 抛出异常
      */
     @Override
-    public User loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
+    public UserInfoDto loginWithCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
         String telephoneNumber = mobilePhoneCodeDto.getMobilePhoneNumber();
-        User isLoginUser = userMapper.getUserByTel(telephoneNumber);
-        if (isLoginUser != null) {
-            String code = mobilePhoneCodeDto.getIdentityCode();//判断验证码是否正确以及验证码是否有效，是否超时
-            if (code.equals("123456")) {
-                return isLoginUser;
+        boolean isLegal = PhoneNumberCheckUtils.isLegal(telephoneNumber);
+        if (isLegal) {
+            User isLoginUser = userMapper.getUserByTel(telephoneNumber);
+            if (!isLoginUser.getTelephone().isEmpty()) {
+                String code = mobilePhoneCodeDto.getIdentityCode();
+                // 判断验证码是否正确以及验证码是否有效，是否超时
+                // 这里我们将redis缓存中的数据取出来，之后，判断是否过期，来更新登录状态
+
             }
         }
         return null;
@@ -111,9 +112,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public int deleteUser(UserInfoDto userInfoDto) throws Exception {
-        userMapper.deleteUser(userInfoDto.getId());
-//        return UserCommonStatus.getCodeByName("SUCCESS");
-        return Result.SUCCESS_CODE;
+        int deleteID = userMapper.deleteUser(userInfoDto.getId());
+        if (deleteID == 1) {
+            logger.info("delete user success!!");
+            return UserCommonStatus.SUCCESS.getCode();
+        } else {
+            logger.error("delete user failed!!");
+            return UserCommonStatus.FAIL.getCode();
+        }
     }
 
     /**
@@ -125,16 +131,21 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserInfoDto getBasicUser(UserInfoDto userInfoDto) throws Exception {
-        Map<String, Object> map = new HashMap<String, Object>();
+        logger.info("获取用户信息开始，入库查询");
+        long currentTime = System.currentTimeMillis();
         User user = userMapper.getUserByUserID(userInfoDto.getId());
+        logger.info("time spend -> {}", System.currentTimeMillis() - currentTime);
         UserInfoDto userInfo = new UserInfoDto();
-        userInfo.setNickname(user.getNickname());
-        userInfo.setTelephone(user.getTelephone());
-        userInfo.setSex(user.getSex());
-        userInfo.setTotalOrderCount(user.getTotalOrderCount());
-        userInfo.setSuccessOrderCount(user.getSuccessOrderCount());
-        userInfo.setFailOrderCount(user.getFailOrderCount());
-        return userInfo;
+        if (user != null) {
+            userInfo.setNickname(user.getNickname());
+            userInfo.setTelephone(user.getTelephone());
+            userInfo.setSex(user.getSex());
+            userInfo.setTotalOrderCount(user.getTotalOrderCount());
+            userInfo.setSuccessOrderCount(user.getSuccessOrderCount());
+            userInfo.setFailOrderCount(user.getFailOrderCount());
+            return userInfo;
+        }
+        return null;
     }
 
     /**
@@ -147,12 +158,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public void realUser(UserInfoDto userInfoDto) throws Exception {
         User user = userMapper.getUserByUserID(userInfoDto.getId());
-        /*user.setNickname(String.valueOf(paramMap.get("nickname")));
-        user.setTelephone(String.valueOf(paramMap.get("telephone")));
-        user.setPassword(String.valueOf(paramMap.get("password")));
-        user.setSex(Boolean.parseBoolean(String.valueOf(paramMap.get("sex"))));
-        user.setAddress(String.valueOf(paramMap.get("address")));
-        user.setName(String.valueOf(paramMap.get("name")));*/
         //用户默认收货地址
         user.setAddress(userInfoDto.getAddress());
         user.setId_card(userInfoDto.getId_card());
@@ -169,15 +174,17 @@ public class UserServiceImpl implements UserService {
      * @throws Exception 抛出异常
      */
     @Override
-    public String getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
+    public int getCode(MobilePhoneCodeDto mobilePhoneCodeDto) throws Exception {
         String telephone = mobilePhoneCodeDto.getMobilePhoneNumber();
-        boolean getCode = Boolean.parseBoolean(mobilePhoneCodeDto.getIdentityCode());//获取短信验证码
-        if (telephone != null && getCode) {
-            return "123456";
+        boolean isLegal = PhoneNumberCheckUtils.isLegal(telephone);
+        boolean getCode = mobilePhoneCodeDto.isGetCodeButton();//获取短信验证码
+        int code;
+        if (isLegal && getCode) {
+            code = RandomUtil.getSixRandomNum();
         } else {
-            return null;
+            code = 0;
         }
-
+        return code;
     }
 
 
@@ -189,13 +196,17 @@ public class UserServiceImpl implements UserService {
      * @throws Exception
      */
     @Override
-    public User viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception {
-        User user = userMapper.getUserByUserID(Long.valueOf(receiveOrderDto.getReceiverID()));
-        if (user == null) {
-            logger.error("【用户信息不完善】");
+    public UserInfoDto viewIfFullUserInformation(ReceiveOrderDto receiveOrderDto) throws Exception {
+        User user = userMapper.getUserByUserID((long) receiveOrderDto.getReceiverID());
+        String idCardNumber = user.getId_card();
+        if (idCardNumber.isEmpty()) {
+            logger.warn("The user is not identify, please identify!!!!!!!");
+            // 可以提醒用户进行实名制认证
             return null;
         } else {
-            return user;
+            UserInfoDto userInfoDto = new UserInfoDto();
+            userInfoDto.setId_card(user.getId_card());
+            return userInfoDto;
         }
     }
 
@@ -252,22 +263,29 @@ public class UserServiceImpl implements UserService {
      * @return 返回int类型
      */
     @Override
-    public User loginUserWithPwd(UserInfoDto userInfoDto) throws Exception {
-        User user = new User();
-        user.setTelephone(userInfoDto.getTelephone());
-        user.setPassword(userInfoDto.getPassword());
+    public UserInfoDto loginUserWithPwd(UserInfoDto userInfoDto) throws Exception {
+        UserInfoDto userInfo = new UserInfoDto();
         User isLoginUser = userMapper.getUserByTel(userInfoDto.getTelephone());
-        if (isLoginUser == null) {
+        logger.info("get userInfo => {}", isLoginUser.toString());
+        String telephone = isLoginUser.getTelephone();
+        if (telephone.isEmpty()) {
             logger.error("【用户信息不存在】");
-            return null;
+            userInfo.setTelephone(null);
+            return userInfo;
         } else {
-            if (isLoginUser.getPassword().equals(user.getPassword())) {
-                return isLoginUser;
+            if (isLoginUser.getPassword().equals(userInfoDto.getPassword())) {
+                userInfo.setTelephone(isLoginUser.getTelephone());
+                userInfo.setNickname(isLoginUser.getNickname());
+                userInfo.setId(isLoginUser.getId());
+                return userInfo;
+            } else {
+                logger.warn("user password is wrong!!!!!");
+                return null;
             }
         }
-        return null;
     }
 
+    @Override
     public User getUserBasicInfo(User user) throws Exception {
         logger.info("【获取用户基本信息】 => {}.", user.getId());
         user.setPassword("");
