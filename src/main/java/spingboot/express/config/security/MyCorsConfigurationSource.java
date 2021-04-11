@@ -21,10 +21,6 @@ public class MyCorsConfigurationSource implements CorsConfigurationSource {
         ALLOWED_HEADER.add("Content-Type");
         ALLOWED_HEADER.add("credential");
         ALLOWED_HEADER.add("X-XSRF-TOKEN");
-        ALLOWED_HEADER.add("timestamp");
-        ALLOWED_HEADER.add("userCode");
-        ALLOWED_HEADER.add("platformKey");
-        ALLOWED_HEADER.add("tokenId");
     }
     static {
         ALLOWED_METHOD.add("GET");
@@ -42,7 +38,7 @@ public class MyCorsConfigurationSource implements CorsConfigurationSource {
     public CorsConfiguration getCorsConfiguration(HttpServletRequest httpServletRequest) {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
         corsConfiguration.setAllowedHeaders(ALLOWED_HEADER);
-        corsConfiguration.setAllowedMethods(ALLOWED_HEADER);
+        corsConfiguration.setAllowedMethods(ALLOWED_METHOD);
         corsConfiguration.setAllowedOrigins(ALLOWED_ORIGIN);
         corsConfiguration.setMaxAge(Long.parseLong(MAX_AGE));
         return corsConfiguration;

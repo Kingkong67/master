@@ -45,10 +45,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         //进行请求接口的拦截
         //根据后面调用方法的不同，对于请求接口进行拦截和允许访问
-//        http = http.authorizeRequests().antMatchers("/userInfo/hello").permitAll().and();
-        http = http.authorizeRequests().antMatchers("/auth/signIn").permitAll().and();
-        http = http.authorizeRequests().antMatchers("/refreshToken").permitAll().and();
-//        http.authorizeRequests().anyRequest().authenticated();
+        http = http.authorizeRequests().antMatchers("/userInfo/**").permitAll().and();
+        http = http.authorizeRequests().antMatchers("/auth/**").denyAll().and();
+        http.authorizeRequests().anyRequest().authenticated();
     }
 
 }
