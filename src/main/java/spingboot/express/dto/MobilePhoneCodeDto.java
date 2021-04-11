@@ -7,7 +7,9 @@ public class MobilePhoneCodeDto {
 
     private String mobilePhoneNumber;
 
-    private boolean isCode;
+    private boolean getCodeButton;
 
     private String identityCode;
+
+
 }

@@ -46,6 +46,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter implements W
         //进行请求接口的拦截
         //根据后面调用方法的不同，对于请求接口进行拦截和允许访问
         http = http.authorizeRequests().antMatchers("/userInfo/**").permitAll().and();
+        http = http.authorizeRequests().antMatchers("/orderInfo/**").permitAll().and();
         http = http.authorizeRequests().antMatchers("/auth/**").denyAll().and();
         http.authorizeRequests().anyRequest().authenticated();
     }
