@@ -15,7 +15,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/ExpressService?useUnicode=true&characterEncoding=UTF-8&useSSL=false&&allowPublicKeyRetrieval=true&&serverTimezone=UTC
     username: root
-    password: 1111
+    password: 15226221250
 
   redis:
     host: 127.0.0.1
